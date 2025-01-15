@@ -1,0 +1,12 @@
+[flake8]
+# 最大行宽设置为 120
+max-line-length = 120
+
+# 忽略特定的错误/警告
+ignore = E123, E124, E125, W503
+
+# 排除不检查的文件/文件夹
+exclude = .git, __pycache__, migrations, tests
+
+# 启用 Django 特定的检查
+enable-extensions = G
