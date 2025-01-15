@@ -82,7 +82,7 @@ sudo lsof -i :8000
 遇到一个问题
 
 ```
-root@e7e23fbad5e7:~/PicCloud# mysql -u root -p
+root@e7e23fbad5e7:~/pc_django# mysql -u root -p
 Enter password: 
 ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (111)
 ```
@@ -117,3 +117,14 @@ FLUSH PRIVILEGES;
 ```
 
 密码123
+
+## 代码规范纠查
+
+严格按照PEP8规范编写代码。提交GitLab前，请使用black自动格式化代码。
+
+```
+sudo apt install black
+black .
+```
+
+![](./black.png)
