@@ -17,7 +17,29 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from apps.accounts.views import LoginView
+
+# 暂时用不了
+# from rest_framework import permissions
+# from drf_yasg.views import get_schema_view
+# from drf_yasg import openapi
+
+# schema_view = get_schema_view(
+#    openapi.Info(
+#       title="API Documentation",
+#       default_version='v1',
+#       description="Test API",
+#       terms_of_service="https://www.google.com/policies/terms/",
+#       contact=openapi.Contact(email="contact@myapi.com"),
+#       license=openapi.License(name="BSD License"),
+#    ),
+#    public=True,
+#    permission_classes=(permissions.AllowAny,),
+# )
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("admin/", admin.site.urls),  # Django 自带的后台管理系统
+    # 登录页面
+    path("api/v1/user/login", LoginView.as_view(), name="login"),
+    # 注册
 ]

@@ -16,9 +16,7 @@ ALLOWED_HOSTS = [
 
 ## 数据库迁移
 
-```
-python3 manage.py migrate
-```
+使用 `python3 manage.py makemigrations` 和 `python3 manage.py migrate` 来创建和应用数据库迁移文件。
 
 因为使用的是mySQL，所以不会像sqlite3那样自动生成db文件。
 
@@ -32,6 +30,13 @@ python3 manage.py runserver
 
 ```
 sudo lsof -i :8000
+```
+
+### 用户登录
+
+```
+127.0.0.1:8000/api/v1/user/login                       # 内网地址
+rcsvnfd47bsc.ngrok.xiaomiqiu123.top/api/v1/user/login  # 小米球外网地址
 ```
 
 ## 配置宝塔面板(可配可不配)

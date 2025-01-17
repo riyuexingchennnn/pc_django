@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "corsheaders",  # 跨域请求
+    # ----------- 自定义应用 -----------
+    "apps.accounts",
 ]
 
 MIDDLEWARE = [
@@ -92,7 +94,7 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "piccloud_db",  # 这里是你创建的数据库名
+        "NAME": "piccloud",  # 这里是你创建的数据库名
         "USER": "root",  # 这里是你创建的数据库用户名
         "PASSWORD": "123",  # 这里是你设置的密码
         "HOST": "localhost",
@@ -103,6 +105,7 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -141,3 +144,11 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+import os
+
+# 设置媒体文件的存储位置
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+# 设置媒体文件的URL
+MEDIA_URL = "/media/"
