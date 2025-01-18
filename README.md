@@ -58,7 +58,7 @@ sudo apt install phpmyadmin
 
 登录本地phpMyAdmin：http://localhost/phpmyadmin
 
-![](./docs/phpmyadmin.png)
+![](./docs/phpmyAdmin.png)
 
 ### 4. 配置宝塔面板(可配可不配)
 
