@@ -1,3 +1,5 @@
+[TOC]
+
 # 影云后端django项目
 
 ## 1. 修改settings配置文件
@@ -14,13 +16,13 @@ ALLOWED_HOSTS = [
 ]
 ```
 
-## 数据库迁移
+## 2. 数据库迁移
 
 使用 `python3 manage.py makemigrations` 和 `python3 manage.py migrate` 来创建和应用数据库迁移文件。
 
 因为使用的是mySQL，所以不会像sqlite3那样自动生成db文件。
 
-## 项目整体运行
+## 3. 项目整体运行
 
 ```
 python3 manage.py runserver
@@ -32,14 +34,14 @@ python3 manage.py runserver
 sudo lsof -i :8000
 ```
 
-### 用户登录
+> 用户登录
 
 ```
 127.0.0.1:8000/api/v1/user/login                       # 内网地址
 rcsvnfd47bsc.ngrok.xiaomiqiu123.top/api/v1/user/login  # 小米球外网地址
 ```
 
-## 配置宝塔面板(可配可不配)
+## 4. 配置宝塔面板(可配可不配)
 
 1. ubuntu2204安装宝塔面板(这个在docker外面)
 
@@ -82,7 +84,7 @@ rcsvnfd47bsc.ngrok.xiaomiqiu123.top/api/v1/user/login  # 小米球外网地址
     Time consumed: 2 Minute!
     ```
 
-## mySQL配置
+## 5. mySQL配置
 
 遇到一个问题
 
@@ -92,7 +94,7 @@ Enter password:
 ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (111)
 ```
 
-### 关于mySQL一个自己给自己挖坑，然后填坑的经历。
+> 关于mySQL一个自己给自己挖坑，然后填坑的经历。
 
 1. 大二下学期的数据库课程，我在ubuntu2204上安装了mysql，但是用的是源码安装。
 2. 后来因为不想要mysql，所以把源文件删除了，但是不代表卸载了mysql。
@@ -123,7 +125,7 @@ FLUSH PRIVILEGES;
 
 密码123
 
-## 代码规范纠查
+## 6. 代码规范纠查
 
 严格按照PEP8规范编写代码。提交GitLab前，请使用black自动格式化代码。
 
