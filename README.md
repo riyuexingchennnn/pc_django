@@ -13,8 +13,8 @@
 ├── apps
 │   ├── accounts
 │   ├── ai
-│   └── photos
-├── black.png
+│   └── images
+├── docs
 ├── LICENSE
 ├── manage.py
 ├── media
@@ -29,11 +29,10 @@
 ├── README.md
 └── requirements.txt
 ```
-
 - apps: 存放应用模块
     - accounts: 用户管理模块
     - ai: 人工智能模块
-    - photos: 图片管理模块
+    - images: 图片管理模块
 - media: 存放上传的图片
 - pc_django: 项目的主要代码目录
 
@@ -41,6 +40,7 @@
 
 - Python 3.10.12
 - mysql 8.0.35
+- django 5.1.4
 
 环境具体部署参照[pc_docker仓库](http://vlab.csu.edu.cn/gitlab/piccloud/pc_docker)
 
