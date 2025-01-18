@@ -32,7 +32,8 @@
 - apps: 存放应用模块
     - accounts: 用户管理模块
     - ai: 人工智能模块
-    - images: 图片管理模块
+    - images: 图片管理模块(包括图片的上传、下载)
+    - 
 - media: 存放上传的图片
 - pc_django: 项目的主要代码目录
 
@@ -149,7 +150,8 @@ FLUSH PRIVILEGES;
 严格按照PEP8规范编写代码。提交GitLab前，请使用black自动格式化代码。
 
 ```
-sudo apt install black
+sudo apt install blackame = "apps.ai"
+
 black .
 ```
 
