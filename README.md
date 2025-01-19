@@ -240,7 +240,9 @@ sudo lsof -i :8000
 rcsvnfd47bsc.ngrok.xiaomiqiu123.top/api/v1/user/login  # 小米球外网地址
 ```
 
-### 4. 接口测试
+## 四、项目接口测试
+
+### 1. Django REST framework
 
 直接访问接口地址。例如登录接口：127.0.0.1:8000/api/v1/user/login
 
@@ -248,5 +250,16 @@ Django的REST framework提供了一系列的工具，可以方便的直接的输
 
 ![](./docs/api_login.png)
 
+### 2. Apifox
+
+前后端统一使用apifox进行接口测试，后端人员编写好接口保存到apifox项目组中，方便前端人员查看。
+
+- 后端调试更改服务器地址，可以更改开发环境，测试环境，正式环境。
+
+    ![](./docs/apifox_1.png)
+
+- 新建接口进行调试，选择POST请求，输入json内容，调试完毕记得保存接口，给前端人员查看。
+
+    ![](./docs/apifox_2.png)
 
 

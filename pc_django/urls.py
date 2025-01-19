@@ -17,8 +17,10 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from apps.accounts.views import LoginView
 
+# 导入自定义的视图函数
+from apps.accounts.views import LoginView
+from apps.images.views import ImageUploadView
 # 暂时用不了
 # from rest_framework import permissions
 # from drf_yasg.views import get_schema_view
@@ -42,4 +44,7 @@ urlpatterns = [
     # 登录页面
     path("api/v1/user/login", LoginView.as_view(), name="login"),
     # 注册
+
+    # 图片上传
+    path("upload-image/", ImageUploadView.as_view(), name="upload_image"),
 ]
