@@ -153,7 +153,9 @@ FLUSH PRIVILEGES;
 
 密码123
 
-### 6. 代码规范纠查
+## 二、代码基建
+
+### 1. 代码规范纠查
 
 严格按照PEP8规范编写代码。提交GitLab前，请使用black自动格式化代码。
 
@@ -174,7 +176,25 @@ flake8 .
 
 ---
 
-## 二、项目运行
+### 2. 日志记录
+
+自己平时有些小调试可以使用print，但是确定下来的时候，还是要用log输出。
+
+```
+# views.py
+import logging
+
+# 获取日志记录器
+logger = logging.getLogger('django')  # settings.py中配置日志记录器叫django
+
+logger.debug("This is a debug message")
+logger.info("This is an info message")
+logger.warning("This is a warning message")
+logger.error("This is an error message")
+logger.critical("This is a critical message")
+```
+
+## 三、项目运行
 
 ### 1. 修改settings配置文件
 
