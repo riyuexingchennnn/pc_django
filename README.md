@@ -12,11 +12,15 @@
 .
 ├── apps
 │   ├── accounts
+│   ├── admin
 │   ├── ai
-│   └── images
+│   ├── images
+│   ├── notifications
+│   └── search
 ├── docs
 ├── LICENSE
 ├── manage.py
+├── log
 ├── media
 │   └── avatar
 ├── pc_django
@@ -29,13 +33,17 @@
 ├── README.md
 └── requirements.txt
 ```
-- apps: 存放应用模块
-    - accounts: 用户管理模块
-    - ai: 人工智能模块
-    - images: 图片管理模块(包括图片的上传、下载)
-    - 
-- media: 存放上传的图片
-- pc_django: 项目的主要代码目录
+- apps: 存放后端应用模块
+  - accounts: 用户管理模块
+  - admin: 后台管理模块
+  - ai: 人工智能模块
+  - images: 图片管理模块
+  - notifications: 通知模块
+  - search: 搜索模块
+- docs: 存放项目文档图片
+- log: 存放日志文件
+- media: 存放上传的用户头像
+- pc_django: 项目的Django本体代码
 
 ### 2. 项目环境
 

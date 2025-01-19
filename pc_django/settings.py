@@ -147,6 +147,8 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
+# --------------------- 媒体文件配置 ------------------------
 import os
 
 # 设置媒体文件的存储位置
@@ -154,3 +156,63 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # 设置媒体文件的URL
 MEDIA_URL = "/media/"
+
+# --------------------- 日志配置 ----------------------------
+# 上面有赋值UTC，但是这里不设置时区，会有问题
+TIME_ZONE = 'Asia/Shanghai'  # 设为你所在的时区
+USE_TZ = True  # 开启时区支持
+
+from datetime import datetime
+USE_RELOADER = False
+
+# 获取当前时间，格式化为日志文件名
+current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
+# 日志文件夹路径
+LOG_DIR = os.path.join(BASE_DIR, 'log')
+
+# 如果日志文件夹不存在，自动创建
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',  # 只记录 INFO 级别及以上的日志
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file': {
+            'level': 'INFO',  # 记录 INFO 级别及以上的日志
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_DIR, f'django_{current_time}.log'),  # 文件名以时间为后缀
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],  # 输出到控制台和文件
+            'level': 'INFO',
+            'propagate': False,  # 关闭向父级传递日志
+        },
+        'django.utils.autoreload': {
+            'handlers': ['file'],  # 只输出到文件
+            'level': 'ERROR',  # 将 autoreload 模块的日志级别设置为 ERROR
+            'propagate': False,  # 禁止自动传播 autoreload 的日志
+        },
+    },
+}
+
+# --------------------------------------------------------------------
