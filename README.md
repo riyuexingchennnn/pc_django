@@ -160,7 +160,7 @@ FLUSH PRIVILEGES;
 严格按照PEP8规范编写代码。提交GitLab前，请使用black自动格式化代码。
 
 ```
-sudo apt install blackame = "apps.ai"
+sudo apt install black
 
 black .
 ```
