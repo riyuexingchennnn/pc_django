@@ -6,6 +6,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from apps.accounts.models import User
 
+import logging
+
+logger = logging.getLogger("django")
+
 # 已完成测试
 class LoginView(APIView):
     def post(self, request):
