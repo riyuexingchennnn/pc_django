@@ -17,7 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from apps.accounts.views import LoginView
+from apps.accounts.views import LoginView, RegisterView
 
 # 暂时用不了
 # from rest_framework import permissions
@@ -42,4 +42,5 @@ urlpatterns = [
     # 登录页面
     path("api/v1/user/login", LoginView.as_view(), name="login"),
     # 注册
+    path("api/v1/user/register", RegisterView.as_view(), name="register"),
 ]
