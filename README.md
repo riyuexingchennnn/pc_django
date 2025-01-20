@@ -274,4 +274,28 @@ Django的REST framework提供了一系列的工具，可以方便的直接的输
 
     ![](./docs/apifox_2.png)
 
+## 五、OSS对象存储
 
+### 1. 方法一：本地OSS存储（不推荐）
+
+使用MinIO作为OSS存储，安装MinIO客户端，并配置django-storages。
+
+```
+docker run -p 9000:9000 -p 9001:9001 \
+  --name minio \
+  -e "MINIO_ROOT_USER=admin" \
+  -e "MINIO_ROOT_PASSWORD=admin123" \
+  minio/minio server /data --console-address ":9001"
+```
+
+![](./docs/MinIO.png)
+
+需要第二台电脑，配置内网穿透9000端口。但是内网穿透流量有限制，1MB/s。
+
+### 2. 方法二：腾讯云COS存储（推荐，但是要花钱）
+
+> 腾讯云开始给你50G180天的COS。测试流量88MB 花费4分钱，还算便宜？ 
+
+![](./docs/COS.png)
+
+不用担心带宽问题，测试4MB图片也能在一秒钟内快速下载。
