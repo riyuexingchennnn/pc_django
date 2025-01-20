@@ -65,7 +65,19 @@ sudo apt install phpmyadmin
 
 安装phpMyAdmin数据库可视化工具，安装时注意用户名用`root`，密码用`123`。
 
-登录本地phpMyAdmin：http://localhost/phpmyadmin
+因为这个要用apache2，如果你有装其他的web服务器比如nginx，会造成80端口冲突，要修改apache2的监听端口。
+
+```
+sudo nano /etc/apache2/ports.conf
+```
+
+修改`Listen 80`为`Listen 8080`，保存退出。
+
+```
+sudo systemctl restart apache2
+```
+
+然后登录本地phpMyAdmin：http://localhost:8080/phpmyadmin
 
 ![](./docs/phpmyAdmin.png)
 

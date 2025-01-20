@@ -26,10 +26,6 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", True)
         return self.create_user(username, email, password, **extra_fields)
     
-
-    
-
-
 class User(models.Model):
     username = models.CharField(max_length=150, unique=True, verbose_name="用户名")
     email = models.EmailField(unique=True, verbose_name="邮箱")

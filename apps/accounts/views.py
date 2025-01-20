@@ -19,7 +19,7 @@ class LoginView(APIView):
         if User.objects.filter(username=username).exists():
             user = User.objects.get(username=username)
             if user.check_password(password):
-                #示例token
+                # 示例token
                 token = "123"
                 return Response(
                     {
@@ -38,7 +38,7 @@ class LoginView(APIView):
             status=status.HTTP_404_NOT_FOUND
         )
 
-#已完成测试
+# 已完成测试
 class RegisterView(APIView):
     def post(self, request):
         username = request.data.get("username")
