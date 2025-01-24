@@ -13,7 +13,7 @@ class CustomUserManager(BaseUserManager):
             raise ValueError("邮箱是必填项")
         email = self.normalize_email(email)  # 归一化邮箱
         user = self.model(username=username, email=email, **extra_fields)
-        #加密密码
+        # 加密密码
         user.password = make_password(password)
         user.save(using=self._db)  # 保存用户
         return user
@@ -25,12 +25,15 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         return self.create_user(username, email, password, **extra_fields)
-    
+
+
 class User(models.Model):
     username = models.CharField(max_length=150, unique=True, verbose_name="用户名")
     email = models.EmailField(unique=True, verbose_name="邮箱")
     password = models.CharField(max_length=255, verbose_name="密码", blank=True)
-    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True, verbose_name="头像")
+    avatar = models.ImageField(
+        upload_to="avatars/", blank=True, null=True, verbose_name="头像"
+    )
     date_joined = models.DateTimeField(default=timezone.now, verbose_name="注册时间")
     last_login = models.DateTimeField(auto_now=True, verbose_name="最后登录时间")
     is_active = models.BooleanField(default=True, verbose_name="是否激活")
