@@ -13,10 +13,17 @@
 ## 二、数据库images表
 
 | 字段名 | 类型 | 说明 |
+| --- | --- | --- |
 | id | int | 图片ID |
-| title | varchar(255) | 图片名称 |
+| name | varchar(255) | 图片名称 |
 | description | text | 图片描述 |
 | category | varchar(255) | 图片分类 |
 | position | varchar(255) | 图片位置 |
 | time | datetime | 图片上传时间 |
 | user_id | int | 图片上传用户ID |
+
+## 三、详细设计
+
+### 1. 图片上传
+
+内容审核-->图像理解-->图像描述-->写入mysql数据库-->存储到腾讯云COS

@@ -98,7 +98,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "piccloud",  # 这里是你创建的数据库名
         "USER": "root",  # 这里是你创建的数据库用户名
-        "PASSWORD": "12345678",  # 这里是你设置的密码
+        "PASSWORD": "123",  # 这里是你设置的密码
         "HOST": "localhost",
         "PORT": "3306",  # 默认端口
     }

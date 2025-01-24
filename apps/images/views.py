@@ -6,10 +6,11 @@ from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
 from qcloud_cos.cos_exception import CosClientError, CosServiceError
 import base64
-from io import BytesIO
 import urllib.parse
+
 from .ai_utils.ai import content_filter, image_understanding, image_description
 from .models import Image
+from apps.accounts.models import User
 
 # 腾讯云 COS 相关配置
 secret_id = "***REMOVED***"
@@ -25,7 +26,8 @@ client = CosS3Client(config)
 logger = logging.getLogger("django")
 
 # 上传图片视图
-# 因为有众多步骤，所以导致上传图片相对较慢，一张图片大约3.11秒
+# 因为有众多步骤，所以导致上传图片相对较慢，一张图片大约8.81秒
+# 如果是普通会员，没有图像描述功能，上传时间大约为4-7秒
 class UploadImageView(APIView):
     def post(self, request, *args, **kwargs):
         # 获取文件和表单字段
@@ -71,30 +73,22 @@ class UploadImageView(APIView):
                 encoded_image_raw
             )  # 这个函数用于将字符串进行 URL 编码
 
-            # result, reason = content_filter(encoded_image)  # 调用AI接口进行内容审核
+            result, reason = content_filter(encoded_image)  # 调用AI接口进行内容审核
             # print(result, reason)
-            # if result == "不合规":
-            #     return Response(
-            #         {"success": False, "message": reason}, status=400
-            #     )  # 返回400错误，表示请求错误
+            if result == "不合规":
+                return Response(
+                    {"success": False, "message": reason}, status=400
+                )  # 返回400错误，表示请求错误
 
-            # tags = image_understanding(encoded_image)  # 调用AI接口进行图像理解
+            tags = image_understanding(encoded_image)  # 调用AI接口进行图像理解
             # print(tags)
-            # description = image_description(encoded_image_raw)  # 调用AI接口进行图像描述
+
+            description = "此图片没有描述"
+            # 如果是普通会员
+            if not User.objects.get(id=user_id).membership == "free":
+                description = image_description(encoded_image_raw)  # 调用AI接口进行图像描述
             # print(description)
 
-            # image_instance = Image.objects.create(
-            #     name=image_file.name,
-            #     description=description,
-            #     category="生活",
-            #     position=position,
-            #     time=time,
-            #     id=unique_filename,
-            #     user_id=user_id,
-            #     url=f"images/{unique_filename}_{image_file.name}"
-            # )
-
-            # logger.info(f"Image instance created: {image_instance}")
         except Exception as e:
             logger.error(f"Error reading file: {e}")
             return Response(
@@ -114,8 +108,20 @@ class UploadImageView(APIView):
                 Body=image_file,
                 EnableMD5=False,  # 是否启用MD5验证
             )
-
             logger.info(f"Upload successful: {response}")
+
+            image_instance = Image.objects.create(
+                name=image_file.name,
+                description=description,
+                category="生活",
+                position=position,
+                time=time,
+                id=unique_filename,
+                user_id=user_id,
+                url=object_key
+            )
+
+            logger.info(f"Image instance created: {image_instance}")
 
             return Response(
                 {
