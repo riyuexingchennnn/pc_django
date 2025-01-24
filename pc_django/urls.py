@@ -21,6 +21,7 @@ from django.urls import path
 # 导入自定义的视图函数
 from apps.accounts.views import LoginView, RegisterView
 from apps.images.views import ImageUploadView
+from apps.pay.views import alipay, alipay_success, alipay_notify
 
 # 暂时用不了
 # from rest_framework import permissions
@@ -48,4 +49,8 @@ urlpatterns = [
     path("api/v1/user/register", RegisterView.as_view(), name="register"),
     # 图片上传
     path("upload-image/", ImageUploadView.as_view(), name="upload_image"),
+    # 支付
+    path("pay/alipay", alipay),
+    path("pay/alipay/return", alipay_success),
+    path("pay/alipay/notify", alipay_notify)
 ]

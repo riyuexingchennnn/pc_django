@@ -98,7 +98,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "piccloud",  # 这里是你创建的数据库名
         "USER": "root",  # 这里是你创建的数据库用户名
-        "PASSWORD": "123",  # 这里是你设置的密码
+        "PASSWORD": "12345678",  # 这里是你设置的密码
         "HOST": "localhost",
         "PORT": "3306",  # 默认端口
     }
@@ -128,13 +128,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "zh-Hans"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Shanghai"
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
