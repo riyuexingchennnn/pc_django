@@ -20,32 +20,29 @@ from django.urls import path
 
 # 导入自定义的视图函数
 from apps.accounts.views import LoginView, RegisterView
-from apps.images.views import ImageUploadView
-
-# 暂时用不了
-# from rest_framework import permissions
-# from drf_yasg.views import get_schema_view
-# from drf_yasg import openapi
-
-# schema_view = get_schema_view(
-#    openapi.Info(
-#       title="API Documentation",
-#       default_version='v1',
-#       description="Test API",
-#       terms_of_service="https://www.google.com/policies/terms/",
-#       contact=openapi.Contact(email="contact@myapi.com"),
-#       license=openapi.License(name="BSD License"),
-#    ),
-#    public=True,
-#    permission_classes=(permissions.AllowAny,),
-# )
+from apps.images.views import UploadImageView, DeleteImageView, UpdateImageView
+from apps.pay.views import AlipayView
 
 urlpatterns = [
     path("admin/", admin.site.urls),  # Django 自带的后台管理系统
+    # ------------------------------ accounts ------------------------------
     # 登录页面
-    path("api/v1/user/login", LoginView.as_view(), name="login"),
+    path("user/login", LoginView.as_view(), name="login"),
     # 注册
-    path("api/v1/user/register", RegisterView.as_view(), name="register"),
+    path("user/register", RegisterView.as_view(), name="register"),
+    # ----------------------------------------------------------------------
+    # ------------------------------ images --------------------------------
     # 图片上传
-    path("upload-image/", ImageUploadView.as_view(), name="upload_image"),
+    path("image/upload", UploadImageView.as_view(), name="upload_image"),
+    # 图片删除
+    path("image/delete", DeleteImageView.as_view(), name="delete_image"),
+    # 图片更新
+    path("image/update", UpdateImageView.as_view(), name="update_image"),
+    # ----------------------------------------------------------------------
+    # ------------------------------ pay -------------------------------------
+    # 支付
+    path("pay/alipay", AlipayView.as_view(), name="alipay"),
+    path("pay/alipay", AlipayView.as_view(), name="alipay_success"),
+    # path("pay/alipay/notify", alipay_notify)
+    # -------------------------------------------------------------------------
 ]

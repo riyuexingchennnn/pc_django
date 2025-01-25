@@ -55,13 +55,12 @@ class RegisterView(APIView):
         if User.objects.filter(username=username).exists():
             return Response(
                 {"message": "Username already exists"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
         # 验证邮箱是否已经存在
         if User.objects.filter(email=email).exists():
             return Response(
-                {"message": "Email already exists"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"message": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST
             )
         # 验证邮箱格式
         email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
