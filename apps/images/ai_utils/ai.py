@@ -70,12 +70,15 @@ def image_understanding(image_base64):
     # 提取所有的 keyword
     keywords = [item["keyword"] for item in response["result"]]
     return keywords
+
+
 # --------------------------------------------------------------------------------
 
 
 # ------------------------------------- 图像描述 -----------------------------------
 openai.api_key = OPENAI_API_KEY
 openai.base_url = OPENAI_BASE_URL
+
 
 def image_description(image_base64):
     # 假设使用支持图像输入的 API
@@ -96,5 +99,6 @@ def image_description(image_base64):
         max_tokens=100,
     )
     return response.choices[0].message.content
-# ---------------------------------------------------------------------------
 
+
+# ---------------------------------------------------------------------------

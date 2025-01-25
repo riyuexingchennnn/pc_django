@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 
+
 # Create your models here.
 class Image(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -14,7 +15,7 @@ class Image(models.Model):
 
     def __str__(self):
         return self.id  # 返回图片名称作为对象的字符串表示
-    
+
     class Meta:
         db_table = "image"  # 自定义表名
         verbose_name = "图片"  # 自定义表名显示名称

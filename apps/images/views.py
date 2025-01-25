@@ -7,6 +7,7 @@ from qcloud_cos import CosS3Client
 from qcloud_cos.cos_exception import CosClientError, CosServiceError
 import base64
 import urllib.parse
+from django.core.exceptions import ObjectDoesNotExist
 
 from .ai_utils.ai import content_filter, image_understanding, image_description
 from .models import Image
@@ -25,6 +26,7 @@ client = CosS3Client(config)
 # 设置日志
 logger = logging.getLogger("django")
 
+
 # 上传图片视图
 # 因为有众多步骤，所以导致上传图片相对较慢，一张图片大约8.81秒
 # 如果是普通会员，没有图像描述功能，上传时间大约为4-7秒
@@ -34,8 +36,8 @@ class UploadImageView(APIView):
         image_file = request.FILES.get("image")  # 获取图片文件(这个只能一张图片)
         user_id = request.data.get("user_id")  # 获取用户ID
         time = request.data.get("time") or None  # 获取拍摄时间
-        category = request.data.get("category") or  "未分类" # 获取分组
-        position = request.data.get("position") or None # 获取位置
+        category = request.data.get("category") or "未分类"  # 获取分组
+        position = request.data.get("position") or None  # 获取位置
 
         # 生成一个唯一的UUID作为文件名
         unique_filename = str(uuid.uuid4())
@@ -61,8 +63,8 @@ class UploadImageView(APIView):
         # 确保文件可以读取
         try:
             ############################
-            # 注意image_file.read()方法  
-            # 要用文件指针归零            
+            # 注意image_file.read()方法
+            # 要用文件指针归零
             ############################
             image_data = image_file.read()  # 读取图片数据
             image_file.seek(0)  # 将指针重置到文件的开头!!!
@@ -86,19 +88,23 @@ class UploadImageView(APIView):
             description = "此图片没有描述"
             # 如果是普通会员
             if not User.objects.get(id=user_id).membership == "free":
-                description = image_description(encoded_image_raw)  # 调用AI接口进行图像描述
+                description = image_description(
+                    encoded_image_raw
+                )  # 调用AI接口进行图像描述
             # print(description)
+
+            category = "生活"  # 固定分组为“生活”
 
         except Exception as e:
             logger.error(f"Error reading file: {e}")
             return Response(
                 {"success": False, "message": "Error reading file"}, status=500
             )
-        
+
         try:
             # 上传COS
             # 设置COS上传对象的键名（使用UUID作为文件名）
-            file_extension = image_file.name.split('.')[-1]  # 获取文件扩展名
+            file_extension = image_file.name.split(".")[-1]  # 获取文件扩展名
             object_key = f"images/{unique_filename}.{file_extension}"
 
             # 上传文件到腾讯云COS
@@ -108,17 +114,17 @@ class UploadImageView(APIView):
                 Body=image_file,
                 EnableMD5=False,  # 是否启用MD5验证
             )
-            logger.info(f"Upload successful: {response}")
+            logger.info(f"COS Upload successful: {response}")
 
             image_instance = Image.objects.create(
                 name=image_file.name,
                 description=description,
-                category="生活",
+                category=category,
                 position=position,
                 time=time,
                 id=unique_filename,
                 user_id=user_id,
-                url=object_key
+                url=object_key,
             )
 
             logger.info(f"Image instance created: {image_instance}")
@@ -127,10 +133,17 @@ class UploadImageView(APIView):
                 {
                     "success": True,
                     "message": "Image uploaded successfully",
+                    "name": image_file.name,
+                    "description": description,
+                    "category": category,
+                    "position": position,
+                    "time": time,
+                    "id": unique_filename,
+                    "tags": tags,
                 },
                 status=200,
             )  # 返回状态码200，数据格式为JSON
-        
+
         except (CosClientError, CosServiceError) as e:
             logger.error(f"Error uploading image: {e}")
             return Response(
@@ -138,4 +151,96 @@ class UploadImageView(APIView):
                 status=500,
             )  # 上传失败时，返回500状态码
 
-        
+
+# 删除图片视图
+class DeleteImageView(APIView):
+    def post(self, request, *args, **kwargs):
+        # 获取图片ID
+        image_id = request.data.get("image_id")
+        user_id = request.data.get("user_id")
+
+        # 验证必填字段
+        if not image_id or not user_id:
+            return Response(
+                {"success": False, "message": "Image id and user_id is required"},
+                status=400,  # 返回400错误，表示请求错误
+            )
+
+        try:
+            # 查找数据库中的图片记录
+            image_record = Image.objects.get(id=image_id)
+
+            # 获取COS中图片的路径
+            object_key = image_record.url
+
+            # 删除COS中的对象
+            response = client.delete_object(
+                Bucket=bucket_name,
+                Key=object_key,
+            )
+            logger.info(f"COS Delete successful: {response}")
+
+            # 删除数据库中的记录
+            image_record.delete()
+
+            return Response(
+                {"success": True, "message": "Image deleted successfully"},
+                status=200,  # 返回200，表示成功
+            )
+        except ObjectDoesNotExist:
+            # 如果数据库中没有找到对应的记录
+            return Response(
+                {"success": False, "message": "Image not found in database"},
+                status=404,  # 返回404，表示资源未找到
+            )
+
+
+# 修改图片视图
+class UpdateImageView(APIView):
+    def post(self, request, *args, **kwargs):
+        # 获取图片ID
+        image_id = request.data.get("image_id")
+        user_id = request.data.get("user_id")
+        name = request.data.get("name")
+        description = request.data.get("description")
+        category = request.data.get("category")
+        position = request.data.get("position")
+        time = request.data.get("time")
+        tags = request.data.get("tags")
+
+        if not image_id :
+            return Response(
+                {"success": False, "message": "Image id is required"},
+                status=400,  # 返回400错误，表示请求错误
+            )
+        try:
+            # 查找数据库中的图片记录
+            image_record = Image.objects.get(id=image_id)
+
+            # 修改数据库中的记录
+            image_record.category = category or image_record.category
+            image_record.position = position or image_record.position
+            image_record.time = time or image_record.time
+            image_record.name = name or image_record.name
+            image_record.description = description or image_record.description
+            image_record.save()
+
+            return Response(
+                {
+                    "success": True, 
+                    "message": "Image updated successfully",
+                    "name": image_record.name,
+                    "description": image_record.description,
+                    "category": image_record.category,
+                    "position": image_record.position,
+                    "time": image_record.time,
+                    "tags": tags,
+                },
+                status=200,  # 返回200，表示成功
+            )
+        except ObjectDoesNotExist:
+            # 如果数据库中没有找到对应的记录
+            return Response(
+                {"success": False, "message": "Image not found in database"},
+                status=404,  # 返回404，表示资源未找到
+            )
