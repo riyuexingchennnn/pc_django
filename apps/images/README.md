@@ -10,17 +10,27 @@
 4. 图片分类：用户可以对图片进行分类，并可以根据分类查看图片。
 5. 图片存储：用户上传的图片会存储在腾讯云 COS 服务器上。
 
-## 二、数据库images表
+## 二、数据库设计
+
+### 1. image表
 
 | 字段名 | 类型 | 说明 |
 | --- | --- | --- |
-| id | int | 图片ID |
+| id | string | 图片ID |
 | name | varchar(255) | 图片名称 |
 | description | text | 图片描述 |
 | category | varchar(255) | 图片分类 |
 | position | varchar(255) | 图片位置 |
 | time | datetime | 图片上传时间 |
 | user_id | int | 图片上传用户ID |
+
+### 2. image_tag关系表
+
+| 字段名 | 类型 | 说明 |
+| --- |
+| image_id | string | 图片ID |
+| tag_name | varchar(255) | 标签名称 |
+
 
 ## 三、详细设计
 
@@ -35,5 +45,11 @@
 删除腾讯云COS上的图片-->删除数据库记录
 
 ### 3. 图片修改
+
+修改数据库记录
+
+### 4. 图片下载
+
+根据user_id一次性将所有的图片的签名url发送给前端
 
 

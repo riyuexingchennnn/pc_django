@@ -16,6 +16,7 @@
 │   ├── ai
 │   ├── images
 │   ├── notifications
+│   ├── pay
 │   └── search
 ├── docs
 ├── LICENSE
@@ -39,6 +40,7 @@
   - ai: 人工智能模块
   - images: 图片管理模块
   - notifications: 通知模块
+  - pay: 支付模块
   - search: 搜索模块
 - docs: 存放项目文档图片
 - log: 存放日志文件
