@@ -20,3 +20,4 @@ class Image(models.Model):
         db_table = "image"  # 自定义表名
         verbose_name = "图片"  # 自定义表名显示名称
         verbose_name_plural = "图片"  # 自定义表名复数显示名称
+
