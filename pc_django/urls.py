@@ -20,7 +20,12 @@ from django.urls import path
 
 # 导入自定义的视图函数
 from apps.accounts.views import LoginView, RegisterView
-from apps.images.views import UploadImageView, DeleteImageView, UpdateImageView, DownloadImageView
+from apps.images.views import (
+    UploadImageView,
+    DeleteImageView,
+    UpdateImageView,
+    DownloadImageView,
+)
 from apps.pay.views import AlipayView
 
 urlpatterns = [

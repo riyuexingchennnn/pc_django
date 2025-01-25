@@ -4,7 +4,9 @@ import uuid
 
 # 图片表
 class Image(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # 图片唯一标识
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False
+    )  # 图片唯一标识
     url = models.URLField(max_length=200, default="images/default.png")  # 图片URL
     name = models.CharField(max_length=255)  # 图片名称
     description = models.TextField(blank=True, null=True)  # 图片描述
@@ -24,11 +26,15 @@ class Image(models.Model):
 
 # 图片与标签的关系表
 class ImageTag(models.Model):
-    image = models.ForeignKey(Image, on_delete=models.CASCADE, related_name="tags")  # 关联图片
+    image = models.ForeignKey(
+        Image, on_delete=models.CASCADE, related_name="tags"
+    )  # 关联图片
     tag_name = models.CharField(max_length=255)  # 标签名称
 
     def __str__(self):
-        return f"{self.image.name} - {self.tag_name}"  # 返回图片与标签的关系作为字符串表示
+        return (
+            f"{self.image.name} - {self.tag_name}"  # 返回图片与标签的关系作为字符串表示
+        )
 
     class Meta:
         db_table = "image_tag"  # 自定义表名

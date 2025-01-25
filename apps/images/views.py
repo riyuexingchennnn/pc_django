@@ -173,10 +173,10 @@ class DeleteImageView(APIView):
 
         try:
             # 查找数据库中的图片记录
-            image_record = Image.objects.get(id=image_id) 
+            image_record = Image.objects.get(id=image_id)
 
             # 删除图像标签关系表中的记录
-            ImageTag.objects.filter(image=image_record).delete()  
+            ImageTag.objects.filter(image=image_record).delete()
 
             # 获取COS中图片的路径
             object_key = image_record.url
@@ -216,7 +216,7 @@ class UpdateImageView(APIView):
         time = request.data.get("time")
         tags = request.data.get("tags")
 
-        if not image_id :
+        if not image_id:
             return Response(
                 {"success": False, "message": "Image id is required"},
                 status=400,  # 返回400错误，表示请求错误
@@ -239,7 +239,7 @@ class UpdateImageView(APIView):
 
             return Response(
                 {
-                    "success": True, 
+                    "success": True,
                     "message": "Image updated successfully",
                     "name": image_record.name,
                     "description": image_record.description,
@@ -256,7 +256,8 @@ class UpdateImageView(APIView):
                 {"success": False, "message": "Image not found in database"},
                 status=404,  # 返回404，表示资源未找到
             )
-        
+
+
 # 下载图片视图
 class DownloadImageView(APIView):
     def post(self, request, *args, **kwargs):
@@ -272,7 +273,7 @@ class DownloadImageView(APIView):
                 {"success": False, "message": "User id is required"},
                 status=400,  # 返回400错误，表示请求错误
             )
-        
+
         try:
             # 查找数据库中的图片记录
             image_records = Image.objects.filter(user_id=user_id)
@@ -288,7 +289,7 @@ class DownloadImageView(APIView):
                     object_key = image_record.url  # 获取COS中图片的路径
                     # 生成签名URL
                     presigned_url = client.get_presigned_url(
-                        Method='GET',           # 指定HTTP方法为GET
+                        Method="GET",  # 指定HTTP方法为GET
                         Bucket=bucket_name,
                         Key=object_key,
                         Expired=expiration,
@@ -299,8 +300,10 @@ class DownloadImageView(APIView):
 
                     logger.debug(f"签名URL: {presigned_url}")
 
-                    tags = ImageTag.objects.filter(image=image_record).values_list("tag_name", flat=True)
-                    
+                    tags = ImageTag.objects.filter(image=image_record).values_list(
+                        "tag_name", flat=True
+                    )
+
                     image_info = {
                         "name": image_record.name,
                         "description": image_record.description,
@@ -316,10 +319,13 @@ class DownloadImageView(APIView):
                 except Exception as e:
                     logger.error(f"Error generating presigned URL: {e}")
                     return Response(
-                        {"success": False, "message": f"Error generating presigned URL: {e}"},
+                        {
+                            "success": False,
+                            "message": f"Error generating presigned URL: {e}",
+                        },
                         status=505,  # 返回505错误，表示服务器内部错误
                     )
-                
+
             return Response(
                 {"success": True, "message": images},
                 status=200,  # 返回200，表示成功
@@ -330,5 +336,3 @@ class DownloadImageView(APIView):
                 {"success": False, "message": "Image not found in database"},
                 status=404,  # 返回404，表示资源未找到
             )
-
-

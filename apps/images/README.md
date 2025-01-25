@@ -27,7 +27,7 @@
 ### 2. image_tag关系表
 
 | 字段名 | 类型 | 说明 |
-| --- |
+| --- | --- | --- |
 | image_id | string | 图片ID |
 | tag_name | varchar(255) | 标签名称 |
 
