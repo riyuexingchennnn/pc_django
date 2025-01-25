@@ -52,4 +52,11 @@
 
 根据user_id一次性将所有的图片的签名url发送给前端
 
+## 四、图片AI
 
+1. 图像审核：百度AI开放平台图像审核API
+2. 图像理解：百度AI开放平台图像理解API
+3. 图像描述：chatgpt4o-mini模型API
+4. 图像分类：百度EasyDL平台图像分类API，自己准备训练数据集
+
+百度AI开放平台图像审核应用:https://console.bce.baidu.com/ai/?fromai=1#/ai/antiporn/app/list

@@ -26,18 +26,18 @@ class Image(models.Model):
 
 # 图片与标签的关系表
 class ImageTag(models.Model):
-    image = models.ForeignKey(
-        Image, on_delete=models.CASCADE, related_name="tags"
-    )  # 关联图片
+    image_id = models.UUIDField(
+        default=uuid.uuid4, editable=False
+    )  # 图片唯一标识，使用 UUID
     tag_name = models.CharField(max_length=255)  # 标签名称
 
     def __str__(self):
         return (
-            f"{self.image.name} - {self.tag_name}"  # 返回图片与标签的关系作为字符串表示
+            f"Image ID {self.image_id} - {self.tag_name}"  # 返回图片 ID 和标签名的关系
         )
 
     class Meta:
         db_table = "image_tag"  # 自定义表名
         verbose_name = "图片标签关系"  # 表名的显示名称
         verbose_name_plural = "图片标签关系"  # 表名的复数显示名称
-        unique_together = ("image", "tag_name")  # 设置联合唯一约束
+        unique_together = ("image_id", "tag_name")  # 设置联合唯一约束

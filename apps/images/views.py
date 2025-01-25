@@ -132,7 +132,7 @@ class UploadImageView(APIView):
             # 构建图像标签关系表
             # 如果标签不存在，则创建标签
             for tag_name in tags:
-                ImageTag.objects.get_or_create(tag_name=tag_name, image=image_instance)
+                ImageTag.objects.get_or_create(tag_name=tag_name, image_id=image_id)
 
             return Response(
                 {
@@ -176,7 +176,7 @@ class DeleteImageView(APIView):
             image_record = Image.objects.get(id=image_id)
 
             # 删除图像标签关系表中的记录
-            ImageTag.objects.filter(image=image_record).delete()
+            ImageTag.objects.filter(image_id=image_id).delete()
 
             # 获取COS中图片的路径
             object_key = image_record.url
@@ -233,9 +233,9 @@ class UpdateImageView(APIView):
             image_record.description = description or image_record.description
             image_record.save()
 
-            ImageTag.objects.filter(image=image_record).delete()
+            ImageTag.objects.filter(image_id=image_id).delete()
             for tag_name in tags:
-                ImageTag.objects.create(tag_name=tag_name, image=image_record)
+                ImageTag.objects.create(tag_name=tag_name, image_id=image_id)
 
             return Response(
                 {
@@ -300,9 +300,9 @@ class DownloadImageView(APIView):
 
                     logger.debug(f"签名URL: {presigned_url}")
 
-                    tags = ImageTag.objects.filter(image=image_record).values_list(
-                        "tag_name", flat=True
-                    )
+                    tags = ImageTag.objects.filter(
+                        image_id=image_record.id
+                    ).values_list("tag_name", flat=True)
 
                     image_info = {
                         "name": image_record.name,
