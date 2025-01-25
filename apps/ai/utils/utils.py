@@ -3,11 +3,12 @@ import urllib
 import requests
 import os
 import json
+
 # views.py
 import logging
 
 # 获取日志记录器
-logger = logging.getLogger('django')
+logger = logging.getLogger("django")
 
 API_KEY = "***REMOVED***"
 SECRET_KEY = "***REMOVED***"
@@ -52,21 +53,25 @@ def content_filter(image_path):
     logger.info(f"是否合规: {is_compliant}")
     if is_compliant == "不合规":
         # 提取不合规的理由
-        non_compliant_reasons = [item.get("msg", "无理由") for item in data.get("data", [])]
+        non_compliant_reasons = [
+            item.get("msg", "无理由") for item in data.get("data", [])
+        ]
         logger.info(f"不合规的理由: {', '.join(non_compliant_reasons)}")
         return is_compliant, non_compliant_reasons
     else:
-        return is_compliant, None    
-# -------------------------------------------------------------------------------
+        return is_compliant, None
 
+
+# -------------------------------------------------------------------------------
 
 
 # -------------------------------- 图片分类 --------------------------------------
 # 暂时不写，考虑使用GoogleNet
 def image_classification():
     pass
-# -------------------------------------------------------------------------------
 
+
+# -------------------------------------------------------------------------------
 
 
 # ------------------------------- 图像理解API -------------------------------------
@@ -75,34 +80,35 @@ def image_understanding(image_path):
     if not os.path.exists(image_path):
         # 尽量用python自带的异常机制来处理错误，而不是用print()
         raise OSError(f"图片文件 {image_path} 不存在！")
-    
-    url = "https://aip.baidubce.com/rest/2.0/image-classify/v2/advanced_general?access_token=" + get_access_token()
+
+    url = (
+        "https://aip.baidubce.com/rest/2.0/image-classify/v2/advanced_general?access_token="
+        + get_access_token()
+    )
 
     # 使用 get_file_content_as_base64 方法获取图像的 Base64 编码
     payload = {
         "image": get_file_content_as_base64(image_path, False),
     }
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
-    }
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
     response = requests.post(url, headers=headers, data=payload)
 
     logger.info(f"图像理解API返回结果: {response.text}")
     # 提取所有的 keyword
-    keywords = [item['keyword'] for item in response.text['result']]
+    keywords = [item["keyword"] for item in response.text["result"]]
     return keywords
+
+
 # -------------------------------------------------------------------------------
-
-
 
 
 # ------------------------------- 图片描述API ------------------------------------
 def image_captioning(image_path):
     pass
+
+
 # -------------------------------------------------------------------------------
-
-
 
 
 # ---------------------- 以下为辅助函数 --------------------------
@@ -118,6 +124,7 @@ def get_file_content_as_base64(path, urlencoded=False):
         if urlencoded:
             content = urllib.parse.quote_plus(content)
     return content
+
 
 def get_access_token():
     """
@@ -136,4 +143,6 @@ def get_access_token():
         return token
     else:
         raise Exception("Failed to get access token")
+
+
 # ------------------------------------------------------------------

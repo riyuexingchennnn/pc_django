@@ -21,6 +21,7 @@ from django.urls import path
 # 导入自定义的视图函数
 from apps.accounts.views import LoginView, RegisterView
 from apps.images.views import ImageUploadView
+
 # 暂时用不了
 # from rest_framework import permissions
 # from drf_yasg.views import get_schema_view
@@ -45,7 +46,6 @@ urlpatterns = [
     path("api/v1/user/login", LoginView.as_view(), name="login"),
     # 注册
     path("api/v1/user/register", RegisterView.as_view(), name="register"),
-
     # 图片上传
     path("upload-image/", ImageUploadView.as_view(), name="upload_image"),
 ]
