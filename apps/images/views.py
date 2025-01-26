@@ -10,7 +10,7 @@ import urllib.parse
 from django.core.exceptions import ObjectDoesNotExist
 
 from .ai_utils.ai import content_filter, image_understanding, image_description
-from .models import Image
+from .models import Image, ImageTag
 from apps.accounts.models import User
 
 # 腾讯云 COS 相关配置
@@ -40,7 +40,7 @@ class UploadImageView(APIView):
         position = request.data.get("position") or None  # 获取位置
 
         # 生成一个唯一的UUID作为文件名
-        unique_filename = str(uuid.uuid4())
+        image_id = str(uuid.uuid4())
 
         logger.debug(
             f"Metadata - user_id: {user_id}, time: {time}, category: {category}, position: {position}, name: {image_file.name}"
@@ -105,7 +105,7 @@ class UploadImageView(APIView):
             # 上传COS
             # 设置COS上传对象的键名（使用UUID作为文件名）
             file_extension = image_file.name.split(".")[-1]  # 获取文件扩展名
-            object_key = f"images/{unique_filename}.{file_extension}"
+            object_key = f"images/{image_id}.{file_extension}"
 
             # 上传文件到腾讯云COS
             response = client.upload_file_from_buffer(
@@ -122,12 +122,17 @@ class UploadImageView(APIView):
                 category=category,
                 position=position,
                 time=time,
-                id=unique_filename,
+                id=image_id,
                 user_id=user_id,
                 url=object_key,
             )
 
             logger.info(f"Image instance created: {image_instance}")
+
+            # 构建图像标签关系表
+            # 如果标签不存在，则创建标签
+            for tag_name in tags:
+                ImageTag.objects.get_or_create(tag_name=tag_name, image_id=image_id)
 
             return Response(
                 {
@@ -138,7 +143,7 @@ class UploadImageView(APIView):
                     "category": category,
                     "position": position,
                     "time": time,
-                    "id": unique_filename,
+                    "id": image_id,
                     "tags": tags,
                 },
                 status=200,
@@ -169,6 +174,9 @@ class DeleteImageView(APIView):
         try:
             # 查找数据库中的图片记录
             image_record = Image.objects.get(id=image_id)
+
+            # 删除图像标签关系表中的记录
+            ImageTag.objects.filter(image_id=image_id).delete()
 
             # 获取COS中图片的路径
             object_key = image_record.url
@@ -208,7 +216,7 @@ class UpdateImageView(APIView):
         time = request.data.get("time")
         tags = request.data.get("tags")
 
-        if not image_id :
+        if not image_id:
             return Response(
                 {"success": False, "message": "Image id is required"},
                 status=400,  # 返回400错误，表示请求错误
@@ -225,9 +233,13 @@ class UpdateImageView(APIView):
             image_record.description = description or image_record.description
             image_record.save()
 
+            ImageTag.objects.filter(image_id=image_id).delete()
+            for tag_name in tags:
+                ImageTag.objects.create(tag_name=tag_name, image_id=image_id)
+
             return Response(
                 {
-                    "success": True, 
+                    "success": True,
                     "message": "Image updated successfully",
                     "name": image_record.name,
                     "description": image_record.description,
@@ -236,6 +248,86 @@ class UpdateImageView(APIView):
                     "time": image_record.time,
                     "tags": tags,
                 },
+                status=200,  # 返回200，表示成功
+            )
+        except ObjectDoesNotExist:
+            # 如果数据库中没有找到对应的记录
+            return Response(
+                {"success": False, "message": "Image not found in database"},
+                status=404,  # 返回404，表示资源未找到
+            )
+
+
+# 下载图片视图
+class DownloadImageView(APIView):
+    def post(self, request, *args, **kwargs):
+        # 获取用户ID
+        user_id = request.data.get("user_id")
+        ####################################
+        # 也许还要加入本地已经有的云端图片id列表
+        ####################################
+
+        # 验证必填字段
+        if not user_id:
+            return Response(
+                {"success": False, "message": "User id is required"},
+                status=400,  # 返回400错误，表示请求错误
+            )
+
+        try:
+            # 查找数据库中的图片记录
+            image_records = Image.objects.filter(user_id=user_id)
+
+            images = []
+
+            # 下载图片
+            for image_record in image_records:
+                try:
+                    # 设置URL过期时间（单位：秒）
+                    expiration = 900  # 15分钟过期
+
+                    object_key = image_record.url  # 获取COS中图片的路径
+                    # 生成签名URL
+                    presigned_url = client.get_presigned_url(
+                        Method="GET",  # 指定HTTP方法为GET
+                        Bucket=bucket_name,
+                        Key=object_key,
+                        Expired=expiration,
+                        # Params={
+                        #     'response-content-disposition': 'inline',  # 确保直接预览
+                        # }
+                    )
+
+                    logger.debug(f"签名URL: {presigned_url}")
+
+                    tags = ImageTag.objects.filter(
+                        image_id=image_record.id
+                    ).values_list("tag_name", flat=True)
+
+                    image_info = {
+                        "name": image_record.name,
+                        "description": image_record.description,
+                        "category": image_record.category,
+                        "position": image_record.position,
+                        "time": image_record.time,
+                        "id": image_record.id,
+                        "presigned_url": presigned_url,
+                        "tags": tags,
+                    }
+                    images.append(image_info)
+
+                except Exception as e:
+                    logger.error(f"Error generating presigned URL: {e}")
+                    return Response(
+                        {
+                            "success": False,
+                            "message": f"Error generating presigned URL: {e}",
+                        },
+                        status=505,  # 返回505错误，表示服务器内部错误
+                    )
+
+            return Response(
+                {"success": True, "message": images},
                 status=200,  # 返回200，表示成功
             )
         except ObjectDoesNotExist:

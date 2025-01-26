@@ -20,8 +20,18 @@ from django.urls import path
 
 # 导入自定义的视图函数
 from apps.accounts.views import LoginView, RegisterView, ChangePasswordView, ChangeInfoView, ChangeAvatarView
-from apps.images.views import UploadImageView, DeleteImageView, UpdateImageView
+from apps.images.views import (
+    UploadImageView,
+    DeleteImageView,
+    UpdateImageView,
+    DownloadImageView,
+)
 from apps.pay.views import AlipayView
+from apps.search.views import (
+    SelectImagesByTime,
+    SelectImagesByPosition,
+    SelectImagesByTags,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),  # Django 自带的后台管理系统
@@ -44,6 +54,8 @@ urlpatterns = [
     path("image/delete", DeleteImageView.as_view(), name="delete_image"),
     # 图片更新
     path("image/update", UpdateImageView.as_view(), name="update_image"),
+    # 图片下载
+    path("image/download", DownloadImageView.as_view(), name="download_image"),
     # ----------------------------------------------------------------------
     # ------------------------------ pay -------------------------------------
     # 支付
@@ -51,4 +63,14 @@ urlpatterns = [
     path("pay/alipay", AlipayView.as_view(), name="alipay_success"),
     # path("pay/alipay/notify", alipay_notify)
     # -------------------------------------------------------------------------
+    # ------------------------------ search -------------------------------------
+    # 搜索图片
+    path("search/image/time", SelectImagesByTime.as_view(), name="search_images_time"),
+    path(
+        "search/image/position",
+        SelectImagesByPosition.as_view(),
+        name="search_images_position",
+    ),
+    path("search/image/tags", SelectImagesByTags.as_view(), name="search_images_tags"),
+    # -----------------------------------------------------------------------------
 ]

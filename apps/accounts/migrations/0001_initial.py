@@ -25,7 +25,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "username",
-                    models.CharField(max_length=150, unique=True, verbose_name="用户名"),
+                    models.CharField(
+                        max_length=150, unique=True, verbose_name="用户名"
+                    ),
                 ),
                 (
                     "email",

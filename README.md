@@ -16,6 +16,7 @@
 │   ├── ai
 │   ├── images
 │   ├── notifications
+│   ├── pay
 │   └── search
 ├── docs
 ├── LICENSE
@@ -39,6 +40,7 @@
   - ai: 人工智能模块
   - images: 图片管理模块
   - notifications: 通知模块
+  - pay: 支付模块
   - search: 搜索模块
 - docs: 存放项目文档图片
 - log: 存放日志文件
@@ -248,15 +250,15 @@ sudo lsof -i :8000
 > 用户登录
 
 ```
-127.0.0.1:8000/api/v1/user/login                       # 内网地址
-rcsvnfd47bsc.ngrok.xiaomiqiu123.top/api/v1/user/login  # 小米球外网地址
+127.0.0.1:8000/user/login                       # 内网地址
+rcsvnfd47bsc.ngrok.xiaomiqiu123.top/user/login  # 小米球外网地址
 ```
 
 ## 四、项目接口测试
 
 ### 1. Django REST framework
 
-直接访问接口地址。例如登录接口：127.0.0.1:8000/api/v1/user/login
+直接访问接口地址。例如登录接口：127.0.0.1:8000/user/login
 
 Django的REST framework提供了一系列的工具，可以方便的直接的输入json的内容调试
 
