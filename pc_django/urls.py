@@ -19,7 +19,13 @@ from django.contrib import admin
 from django.urls import path
 
 # 导入自定义的视图函数
-from apps.accounts.views import LoginView, RegisterView, ChangePasswordView, ChangeInfoView, ChangeAvatarView
+from apps.accounts.views import (
+    LoginView,
+    RegisterView,
+    ChangePasswordView,
+    ChangeInfoView,
+    ChangeAvatarView,
+)
 from apps.images.views import (
     UploadImageView,
     DeleteImageView,

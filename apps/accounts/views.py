@@ -12,6 +12,7 @@ import logging, random, string
 
 logger = logging.getLogger("django")
 
+
 # 已完成测试
 class LoginView(APIView):
     def post(self, request):
@@ -38,6 +39,8 @@ class LoginView(APIView):
             return Response(
                 {"message": "Invalid password"}, status=status.HTTP_401_UNAUTHORIZED
             )
+
+
 # 已完成测试
 class RegisterView(APIView):
     def post(self, request):
@@ -69,6 +72,8 @@ class RegisterView(APIView):
             {"message": "User registered successfully", "user_id": user.id},
             status=status.HTTP_201_CREATED,
         )
+
+
 # 已完成测试
 class ChangePasswordView(APIView):
     def post(self, request):
@@ -77,14 +82,12 @@ class ChangePasswordView(APIView):
         email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         if not re.match(email_regex, email):
             return Response(
-                {"message": "Invalid email format"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"message": "Invalid email format"}, status=status.HTTP_400_BAD_REQUEST
             )
         # 验证邮箱是否存在
         if not User.objects.filter(email=email).exists():
             return Response(
-                {"message": "Email does not exist"},
-                status=status.HTTP_404_NOT_FOUND
+                {"message": "Email does not exist"}, status=status.HTTP_404_NOT_FOUND
             )
         user = User.objects.get(email=email)
         # 修改密码分为两个阶段，验证码请求、验证码验证
@@ -93,7 +96,7 @@ class ChangePasswordView(APIView):
         if not is_verifying:
             # 生成验证码
             all_characters = string.ascii_letters + string.digits
-            verification_code = ''.join(random.choice(all_characters) for _ in range(6))
+            verification_code = "".join(random.choice(all_characters) for _ in range(6))
             # 保存验证码到数据库
             user.verification_code = verification_code
             # 这个函数是必须要的
@@ -102,21 +105,22 @@ class ChangePasswordView(APIView):
             send_mail(
                 recipient_list=[email],
                 subject="修改密码请求",
-                body = "尊敬的影云用户(" + email + ")您好，您关于修改密码的验证码如下: " + verification_code
-
+                body="尊敬的影云用户("
+                + email
+                + ")您好，您关于修改密码的验证码如下: "
+                + verification_code,
             )
             return Response(
-                {"message": "Verification code sent"},
-                status=status.HTTP_200_OK
+                {"message": "Verification code sent"}, status=status.HTTP_200_OK
             )
         # 验证码验证
-        else: 
+        else:
             # 先须要获取验证码 ，这里主要是为了逻辑完备
             # md单词打错bug找半天
             if user.verification_code is None:
                 return Response(
                     {"message": "No verification code found"},
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
             verification_code = request.data.get("verification_code")
             new_password = request.data.get("new_password")
@@ -126,21 +130,23 @@ class ChangePasswordView(APIView):
                 user.save()
                 return Response(
                     {"message": "Password changed successfully"},
-                    status=status.HTTP_200_OK
+                    status=status.HTTP_200_OK,
                 )
             else:
                 return Response(
                     {"message": "Invalid verification code"},
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
-# 未测试       
+
+
+# 未测试
 class ChangeInfoView(APIView):
     def post(self, request):
         # todo : 所有操作之前都需要验证用户身份
         # 原用户名是必传参数
         username = request.data.get("username")
         user = User.objects.get(username=username)
-        #修改邮箱
+        # 修改邮箱
         if request.data.get("email"):
             email = request.data.get("email")
             # 验证邮箱格式
@@ -149,7 +155,7 @@ class ChangeInfoView(APIView):
                 return Response(
                     {"message": "Invalid email format"},
                 )
-            user.email = email;
+            user.email = email
             user.save()
         # 这里注意修改密码需要同时提供原密码
         if request.data.get("password"):
@@ -161,20 +167,19 @@ class ChangeInfoView(APIView):
                     user.save()
             else:
                 return Response(
-                    {"message": "Invalid password"},
-                    status=status.HTTP_400_BAD_REQUEST
+                    {"message": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST
                 )
         # 修改用户名
         if request.data.get("new_username"):
             new_username = request.data.get("new_username")
-            user.username = new_username;
+            user.username = new_username
             user.save()
         # 返回修改成功的信息
         return Response(
-            {"message": "Info changed successfully"},
-            status=status.HTTP_200_OK
+            {"message": "Info changed successfully"}, status=status.HTTP_200_OK
         )
-                 
+
+
 # 未测试
 class ChangeAvatarView(APIView):
     def post(self, request):
@@ -184,6 +189,5 @@ class ChangeAvatarView(APIView):
         user.avatar = request.data.get("avatar")
         user.save()
         return Response(
-            {"message": "Avatar changed successfully"},
-            status=status.HTTP_200_OK
+            {"message": "Avatar changed successfully"}, status=status.HTTP_200_OK
         )

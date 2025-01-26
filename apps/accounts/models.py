@@ -28,20 +28,24 @@ class CustomUserManager(BaseUserManager):
 
 
 class User(models.Model):
-    verification_code = models.CharField(max_length=6, blank = True, verbose_name="验证码")
-    # todo
-    left_space = models.IntegerField(default=0, verbose_name="剩余空间")
+    verification_code = models.CharField(
+        max_length=6, blank=True, verbose_name="验证码"
+    )
+    # 用户已经使用的空间，单位为MB，免费用户为1024MB
+    used_space = models.FloatField(default=1024.0, verbose_name="已用空间")
     username = models.CharField(max_length=150, unique=True, verbose_name="用户名")
     email = models.EmailField(unique=True, verbose_name="邮箱")
     password = models.CharField(max_length=255, verbose_name="密码", blank=True)
     avatar = models.ImageField(
-        upload_to="avatars/", blank=True, null=True, verbose_name="头像", default="avatar/avatar.png"
+        upload_to="avatars/",
+        blank=True,
+        null=True,
+        verbose_name="头像",
+        default="avatar/default.png",
     )
     date_joined = models.DateTimeField(default=timezone.now, verbose_name="注册时间")
     last_login = models.DateTimeField(auto_now=True, verbose_name="最后登录时间")
-    is_active = models.BooleanField(default=True, verbose_name="是否激活")
-    is_staff = models.BooleanField(default=False, verbose_name="是否为管理员")
-    is_superuser = models.BooleanField(default=False, verbose_name="是否为超级管理员")
+    is_active = models.BooleanField(default=True, verbose_name="是否在线")
 
     MEMBERSHIP_CHOICES = [
         ("free", "免费会员"),

@@ -1,5 +1,5 @@
-from .utils.common import get_access_token
-from .utils.common import (
+from .ai_utils.common import get_access_token
+from .ai_utils.common import (
     OPENAI_API_KEY,
     OPENAI_BASE_URL,
 )
@@ -20,7 +20,6 @@ def content_filter(image_base64):
 
     # 构建请求参数
     payload = f"image={image_base64}"
-
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
         "Accept": "application/json",
@@ -57,16 +56,21 @@ def image_understanding(image_base64):
         + get_access_token()
     )
 
-    # 使用 get_file_content_as_base64 方法获取图像的 Base64 编码
     payload = f"image={image_base64}"
-    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/json",
+    }
 
-    response = requests.post(url, headers=headers, data=payload)
+    response = requests.post(url, headers=headers, data=payload.encode("utf-8"))
 
-    # logger.debug(f"Response: {response.text}")
-
-    response = response.json()
-
+    # 使用 response.json() 获取 JSON 数据
+    try:
+        response = response.json()
+    except ValueError:
+        # 如果响应不是有效的 JSON，可以处理异常
+        logger.error("响应内容不是有效的JSON")
+        return ["响应内容不是有效的JSON"]
     # 提取所有的 keyword
     keywords = [item["keyword"] for item in response["result"]]
     return keywords

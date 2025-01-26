@@ -83,8 +83,6 @@ class SelectImagesByTags(APIView):
                 urlList = list(set(urlList) & set(urls))
                 idList = list(set(idList) & set(ids))
 
-
-
         return JsonResponse(
             {
                 "state": "success",

@@ -8,7 +8,7 @@
 
 | 功能     | free用户 | silver用户 | gold用户 |
 | ------- | -------- | ---------- | -------- |
-| 价格     | 免费     | ￥8/月    | ￥18/月 |
+| 价格     | 免费     | ￥18/月    | ￥28/月 |
 | 云存储大小 | 1G | 5G | 10G |
 | 图像分类 | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | 图像理解 | :white_check_mark: | :white_check_mark: | :white_check_mark: |

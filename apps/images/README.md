@@ -38,7 +38,9 @@
 
 ### 1. 图片上传
 
-内容审核-->图像理解-->图像分类-->图像描述(免费会员没有)-->写入mysql数据库-->存储到腾讯云COS
+原图片-->图片压缩(节约大小)-->内容审核-->图像理解-->图像分类-->图像描述(免费会员没有)
+
+原图片-->写入mysql数据库-->存储到腾讯云COS
 
 ### 2. 图片删除
 
@@ -68,4 +70,5 @@
 - 事件：生日、活动、节日
 
 百度AI开放平台图像审核应用:https://console.bce.baidu.com/ai/?fromai=1#/ai/antiporn/app/list
+
 EasyDL平台图像分类数据集:https://console.bce.baidu.com/easydl/datav/imgcls/dataset/list

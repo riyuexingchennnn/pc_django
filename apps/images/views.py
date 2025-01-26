@@ -2,26 +2,17 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 import logging
 import uuid
-from qcloud_cos import CosConfig
-from qcloud_cos import CosS3Client
+import io
+import PIL
 from qcloud_cos.cos_exception import CosClientError, CosServiceError
 import base64
 import urllib.parse
 from django.core.exceptions import ObjectDoesNotExist
 
-from .ai_utils.ai import content_filter, image_understanding, image_description
+from .utils.ai import content_filter, image_understanding, image_description
 from .models import Image, ImageTag
 from apps.accounts.models import User
-
-# 腾讯云 COS 相关配置
-secret_id = "***REMOVED***"
-secret_key = "***REMOVED***"
-region = "ap-guangzhou"  # 你COS桶所在的区域（例如：'ap-guangzhou'）
-bucket_name = "***REMOVED***"  # 替换成你的COS存储桶名称
-
-# 初始化CosConfig和CosS3Client
-config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key)
-client = CosS3Client(config)
+from .utils.cos import upload_image_cos, delete_image_cos, generate_image_url_cos
 
 # 设置日志
 logger = logging.getLogger("django")
@@ -39,6 +30,39 @@ class UploadImageView(APIView):
         category = request.data.get("category") or "未分类"  # 获取分组
         position = request.data.get("position") or None  # 获取位置
 
+        # 首先检查用户存储空间是否足够
+        user = User.objects.get(id=user_id)
+        if (
+            user.membership == "free"
+            and user.used_space + image_file.size / 1024.0 / 1024.0 > 1024.0
+        ):
+            return Response(
+                {
+                    "success": False,
+                    "message": "User storage space is full. Upgrade to premium membership to upload more.",
+                },
+                status=400,
+            )  # 返回400错误，表示请求错误
+        elif (
+            user.membership == "silver"
+            and user.used_space + image_file.size / 1024.0 / 1024.0 > 1024.0 * 5
+        ):
+            return Response(
+                {
+                    "success": False,
+                    "message": "User storage space is full. Upgrade to premium membership to upload more.",
+                },
+                status=400,
+            )  # 返回400错误，表示请求错误
+        elif (
+            user.membership == "gold"
+            and user.used_space + image_file.size / 1024.0 / 1024.0 > 1024.0 * 10
+        ):
+            return Response(
+                {"success": False, "message": "User storage space is full."},
+                status=400,
+            )  # 返回400错误，表示请求错误
+
         # 生成一个唯一的UUID作为文件名
         image_id = str(uuid.uuid4())
 
@@ -53,26 +77,52 @@ class UploadImageView(APIView):
                 status=400,
             )  # 返回400错误，表示请求错误
 
-        # 检查文件大小，确保不会超过限制
-        if image_file.size > 10 * 1024 * 1024:  # 设置最大文件大小为10MB
+        if image_file.size > 10 * 1024 * 1024:
             return Response(
-                {"success": False, "message": "File is too large. Max size is 10MB."},
+                {"success": False, "message": "Image file size should not exceed 10MB"},
                 status=400,
-            )
+            )  # 返回400错误，表示请求错误
 
         # 确保文件可以读取
         try:
-            ############################
-            # 注意image_file.read()方法
-            # 要用文件指针归零
-            ############################
-            image_data = image_file.read()  # 读取图片数据
-            image_file.seek(0)  # 将指针重置到文件的开头!!!
+            # 压缩图片并生成 Base64 编码
+            def compress_image(
+                image, target_size_kb=500, max_width=1024, max_height=1024
+            ):
+                img = PIL.Image.open(image)
 
-            # 将图片数据转换为 Base64 编码
-            encoded_image_raw = base64.b64encode(image_data).decode("utf-8")
+                # 优化：调整图片分辨率（避免过大的图片尺寸）
+                img.thumbnail((max_width, max_height))
+
+                quality = 85  # 初始质量
+                buffer = io.BytesIO()
+
+                # print("压缩图片中...")
+
+                # 压缩循环
+                while True:
+                    buffer.seek(0)
+                    buffer.truncate(0)  # 清空缓冲区
+                    img.save(buffer, format=img.format, quality=quality)  # 压缩图片
+                    size_kb = buffer.tell() / 1024  # 当前图片大小 (KB)
+
+                    # 如果文件小于目标大小或质量降到最低，则停止
+                    if size_kb <= target_size_kb or quality <= 10:
+                        break
+
+                    # 降低质量继续压缩
+                    quality -= 5
+
+                buffer.seek(0)
+                return base64.b64encode(buffer.read()).decode("utf-8"), size_kb
+
+            # 生成 Base64 编码的压缩图片
+            compressed_base64, compressed_size_kb = compress_image(
+                image_file, target_size_kb=700
+            )
+
             encoded_image = urllib.parse.quote_plus(
-                encoded_image_raw
+                compressed_base64
             )  # 这个函数用于将字符串进行 URL 编码
 
             result, reason = content_filter(encoded_image)  # 调用AI接口进行内容审核
@@ -89,7 +139,7 @@ class UploadImageView(APIView):
             # 如果是普通会员
             if not User.objects.get(id=user_id).membership == "free":
                 description = image_description(
-                    encoded_image_raw
+                    compressed_base64
                 )  # 调用AI接口进行图像描述
             # print(description)
 
@@ -102,18 +152,14 @@ class UploadImageView(APIView):
             )
 
         try:
-            # 上传COS
-            # 设置COS上传对象的键名（使用UUID作为文件名）
-            file_extension = image_file.name.split(".")[-1]  # 获取文件扩展名
-            object_key = f"images/{image_id}.{file_extension}"
-
-            # 上传文件到腾讯云COS
-            response = client.upload_file_from_buffer(
-                Bucket=bucket_name,
-                Key=object_key,
-                Body=image_file,
-                EnableMD5=False,  # 是否启用MD5验证
-            )
+            ############################
+            # 注意image_file.read()方法
+            # 要用文件指针归零
+            ############################
+            image_file.seek(0)  # 将指针重置到文件的开头!!!
+            response, image_url = upload_image_cos(
+                image_id, image_file
+            )  # 上传图片到腾讯云COS
             logger.info(f"COS Upload successful: {response}")
 
             image_instance = Image.objects.create(
@@ -124,7 +170,7 @@ class UploadImageView(APIView):
                 time=time,
                 id=image_id,
                 user_id=user_id,
-                url=object_key,
+                url=image_url,
             )
 
             logger.info(f"Image instance created: {image_instance}")
@@ -133,6 +179,10 @@ class UploadImageView(APIView):
             # 如果标签不存在，则创建标签
             for tag_name in tags:
                 ImageTag.objects.get_or_create(tag_name=tag_name, image_id=image_id)
+
+            # 如果上传成功了，就要占用用户存储空间
+            user.used_space += image_file.size / 1024.0 / 1024.0  # 单位为MB
+            user.save()
 
             return Response(
                 {
@@ -145,6 +195,7 @@ class UploadImageView(APIView):
                     "time": time,
                     "id": image_id,
                     "tags": tags,
+                    "used_space": user.used_space,
                 },
                 status=200,
             )  # 返回状态码200，数据格式为JSON
@@ -178,14 +229,7 @@ class DeleteImageView(APIView):
             # 删除图像标签关系表中的记录
             ImageTag.objects.filter(image_id=image_id).delete()
 
-            # 获取COS中图片的路径
-            object_key = image_record.url
-
-            # 删除COS中的对象
-            response = client.delete_object(
-                Bucket=bucket_name,
-                Key=object_key,
-            )
+            response = delete_image_cos(image_record.url)  # 删除图片到腾讯云COS
             logger.info(f"COS Delete successful: {response}")
 
             # 删除数据库中的记录
@@ -286,17 +330,7 @@ class DownloadImageView(APIView):
                     # 设置URL过期时间（单位：秒）
                     expiration = 900  # 15分钟过期
 
-                    object_key = image_record.url  # 获取COS中图片的路径
-                    # 生成签名URL
-                    presigned_url = client.get_presigned_url(
-                        Method="GET",  # 指定HTTP方法为GET
-                        Bucket=bucket_name,
-                        Key=object_key,
-                        Expired=expiration,
-                        # Params={
-                        #     'response-content-disposition': 'inline',  # 确保直接预览
-                        # }
-                    )
+                    presigned_url = generate_image_url_cos(image_record.url, expiration)
 
                     logger.debug(f"签名URL: {presigned_url}")
 
