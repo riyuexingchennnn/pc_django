@@ -65,8 +65,8 @@ class SelectImagesByTags(APIView):
         print(request.data)
         print("********************************************************")
 
-        urlSet = set()
-        idSet = set()
+        urlList = []
+        idList = []
 
         for tag_name in tagslist:
             image_ids = ImageTag.objects.filter(tag_name=tag_name).values_list(
@@ -75,11 +75,15 @@ class SelectImagesByTags(APIView):
             images = Image.objects.filter(user_id=userid, id__in=image_ids)
             urls = [image.url for image in images]
             ids = [image.id for image in images]
-            urlSet.update(urls)
-            idSet.update(ids)
 
-        urlList = list(urlSet)
-        idList = list(idSet)
+            if tag_name == tagslist[0]:
+                urlList = urls
+                idList = ids
+            else:
+                urlList = list(set(urlList) & set(urls))
+                idList = list(set(idList) & set(ids))
+
+
 
         return JsonResponse(
             {
