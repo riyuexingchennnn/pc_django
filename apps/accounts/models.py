@@ -28,11 +28,14 @@ class CustomUserManager(BaseUserManager):
 
 
 class User(models.Model):
+    verification_code = models.CharField(max_length=6, blank = True, verbose_name="验证码")
+    # todo
+    left_space = models.IntegerField(default=0, verbose_name="剩余空间")
     username = models.CharField(max_length=150, unique=True, verbose_name="用户名")
     email = models.EmailField(unique=True, verbose_name="邮箱")
     password = models.CharField(max_length=255, verbose_name="密码", blank=True)
     avatar = models.ImageField(
-        upload_to="avatars/", blank=True, null=True, verbose_name="头像"
+        upload_to="avatars/", blank=True, null=True, verbose_name="头像", default="avatar/avatar.png"
     )
     date_joined = models.DateTimeField(default=timezone.now, verbose_name="注册时间")
     last_login = models.DateTimeField(auto_now=True, verbose_name="最后登录时间")

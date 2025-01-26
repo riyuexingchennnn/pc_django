@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import path
 
 # 导入自定义的视图函数
-from apps.accounts.views import LoginView, RegisterView
+from apps.accounts.views import LoginView, RegisterView, ChangePasswordView, ChangeInfoView, ChangeAvatarView
 from apps.images.views import (
     UploadImageView,
     DeleteImageView,
@@ -40,6 +40,12 @@ urlpatterns = [
     path("user/login", LoginView.as_view(), name="login"),
     # 注册
     path("user/register", RegisterView.as_view(), name="register"),
+    # 基础信息修改
+    path("user/change_info", ChangeInfoView.as_view(), name="change_info"),
+    # 头像修改
+    path("user/change_avatar", ChangeAvatarView.as_view(), name="change_avatar"),
+    # 修改密码
+    path("user/change_password", ChangePasswordView.as_view(), name="change_password"),
     # ----------------------------------------------------------------------
     # ------------------------------ images --------------------------------
     # 图片上传
