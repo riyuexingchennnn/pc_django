@@ -32,6 +32,7 @@ from apps.search.views import (
     SelectImagesByPosition,
     SelectImagesByTags,
 )
+
 urlpatterns = [
     path("admin/", admin.site.urls),  # Django 自带的后台管理系统
     # ------------------------------ accounts ------------------------------
@@ -59,6 +60,11 @@ urlpatterns = [
     # ------------------------------ search -------------------------------------
     # 搜索图片
     path("search/image/time", SelectImagesByTime.as_view(), name="search_images_time"),
-    path("search/image/position", SelectImagesByPosition.as_view(), name="search_images_position"),
+    path(
+        "search/image/position",
+        SelectImagesByPosition.as_view(),
+        name="search_images_position",
+    ),
     path("search/image/tags", SelectImagesByTags.as_view(), name="search_images_tags"),
+    # -----------------------------------------------------------------------------
 ]

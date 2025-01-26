@@ -2,7 +2,9 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 from apps.images.models import Image, ImageTag
 from datetime import datetime
+
 # Create your views here.
+
 
 class SelectImagesByTime(APIView):
     # 按时间搜索,格式：2025-08-20
@@ -20,11 +22,14 @@ class SelectImagesByTime(APIView):
         images = Image.objects.filter(user_id=userid, time__date=selectTime)
         images_url = [image.url for image in images]
         images_id = [image.id for image in images]
-        return JsonResponse({
-            "state": "success",
-            'images_url': images_url,
-            'images_id': images_id,
-        })
+        return JsonResponse(
+            {
+                "state": "success",
+                "images_url": images_url,
+                "images_id": images_id,
+            }
+        )
+
 
 class SelectImagesByPosition(APIView):
     # 按地点搜索
@@ -40,12 +45,15 @@ class SelectImagesByPosition(APIView):
         images = Image.objects.filter(user_id=userid, position=selectPosition)
         images_url = [image.url for image in images]
         images_id = [image.id for image in images]
-        return JsonResponse({
-            "state": "success",
-            'images_url': images_url,
-            'images_id': images_id,
-        })
+        return JsonResponse(
+            {
+                "state": "success",
+                "images_url": images_url,
+                "images_id": images_id,
+            }
+        )
         pass
+
 
 class SelectImagesByTags(APIView):
     # 按照标签搜索图片
@@ -61,7 +69,9 @@ class SelectImagesByTags(APIView):
         idSet = set()
 
         for tag_name in tagslist:
-            image_ids = ImageTag.objects.filter(tag_name=tag_name).values_list('image_id', flat=True)
+            image_ids = ImageTag.objects.filter(tag_name=tag_name).values_list(
+                "image_id", flat=True
+            )
             images = Image.objects.filter(user_id=userid, id__in=image_ids)
             urls = [image.url for image in images]
             ids = [image.id for image in images]
@@ -71,9 +81,10 @@ class SelectImagesByTags(APIView):
         urlList = list(urlSet)
         idList = list(idSet)
 
-        return JsonResponse({
-            "state": "success",
-            "urls": urlList,
-            "ids": idList ,
-        })
-
+        return JsonResponse(
+            {
+                "state": "success",
+                "urls": urlList,
+                "ids": idList,
+            }
+        )
