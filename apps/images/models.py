@@ -14,6 +14,7 @@ class Image(models.Model):
     position = models.CharField(max_length=100, blank=True, null=True)  # 图片位置
     time = models.DateTimeField(blank=True, null=True)  # 上传时间
     user_id = models.CharField(max_length=255)  # 上传用户ID
+    image_size = models.FloatField(blank=True, null=True)  # 图片大小，单位为MB
 
     def __str__(self):
         return self.id  # 返回图片名称作为对象的字符串表示

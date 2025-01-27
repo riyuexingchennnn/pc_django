@@ -171,6 +171,7 @@ class UploadImageView(APIView):
                 id=image_id,
                 user_id=user_id,
                 url=image_url,
+                image_size=image_file.size / 1024.0 / 1024.0,
             )
 
             logger.info(f"Image instance created: {image_instance}")
@@ -214,6 +215,7 @@ class DeleteImageView(APIView):
         # 获取图片ID
         image_id = request.data.get("image_id")
         user_id = request.data.get("user_id")
+        user = User.objects.get(id=user_id)
 
         # 验证必填字段
         if not image_id or not user_id:
@@ -234,9 +236,15 @@ class DeleteImageView(APIView):
 
             # 删除数据库中的记录
             image_record.delete()
+            user.used_space -= image_record.image_size / 1024.0 / 1024.0  # 单位为MB
+            user.save()
 
             return Response(
-                {"success": True, "message": "Image deleted successfully"},
+                {
+                    "success": True,
+                    "message": "Image deleted successfully",
+                    "used_space": user.used_space,
+                },
                 status=200,  # 返回200，表示成功
             )
         except ObjectDoesNotExist:
