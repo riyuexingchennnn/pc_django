@@ -110,7 +110,33 @@ def image_description(image_base64):
 
 # ------------------------------------- 图像分类 ----------------------------------
 def image_classification(image_base64):
-    pass
 
+    while(True):
+        # 假设使用支持图像输入的 API
+        response = openai.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": [{"type": "text", "text": "我现在想让你充当一个图像分类的器，你只需要回答这张图片属于人物、动物、植物、风景、美食、事件、杂物哪一类。回答的问题必须为这几个类别中的一个。用两个字回答"}],
+        
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": "请问这张图片属于哪一类。"},
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"},
+                        },
+                    ],
+                }
+            ],
+            max_tokens=100,
+        )
+        classification = response.choices[0].message.content
+        class_ = ["人物","动物","植物","风景","美食","事件","杂物"]
+        if classification  in class_:
+            return classification
 
 # --------------------------------------------------------------------------------

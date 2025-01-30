@@ -9,7 +9,7 @@ import base64
 import urllib.parse
 from django.core.exceptions import ObjectDoesNotExist
 
-from .utils.ai import content_filter, image_understanding, image_description
+from .utils.ai import content_filter, image_understanding, image_description, image_classification
 from .models import Image, ImageTag
 from apps.accounts.models import User
 from .utils.cos import upload_image_cos, delete_image_cos, generate_image_url_cos
@@ -143,7 +143,8 @@ class UploadImageView(APIView):
                 )  # 调用AI接口进行图像描述
             # print(description)
 
-            category = "生活"  # 固定分组为“生活”
+            category = image_classification(encoded_image)  # 调用AI接口进行图像分类
+            # print(category)
 
         except Exception as e:
             logger.error(f"Error reading file: {e}")
