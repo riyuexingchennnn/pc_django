@@ -3,6 +3,7 @@ from alipay.aop.api.AlipayClientConfig import AlipayClientConfig
 from alipay.aop.api.DefaultAlipayClient import DefaultAlipayClient
 from alipay.aop.api.domain.AlipayTradePagePayModel import AlipayTradePagePayModel
 from alipay.aop.api.request.AlipayTradePagePayRequest import AlipayTradePagePayRequest
+from alipay.aop.api.request.AlipayTradeWapPayRequest import AlipayTradeWapPayRequest
 import traceback
 from django.http import JsonResponse
 from django.http import HttpResponse
@@ -57,9 +58,19 @@ class AlipayView(APIView):
             model.out_trade_no = out_trade_no
             model.total_amount = total_amount
             model.subject = subject
-            model.product_code = "FAST_INSTANT_TRADE_PAY"
+
+            # 获取设备
+            divice = request.data.get("divice")
+
+            if divice == 'phone':
+                model.product_code = "QUICK_WAP_WAY"
+            else:
+                model.product_code = "FAST_INSTANT_TRADE_PAY"
             # 创建支付请求
-            request_data = AlipayTradePagePayRequest(biz_model=model)
+            if divice == 'phone':
+                request_data = AlipayTradeWapPayRequest(biz_model=model)
+            else:
+                request_data = AlipayTradePagePayRequest(biz_model=model)
             request_data.return_url = (
                 "http://localhost:8000/pay/alipay"  # 支付完成后的跳转页面
             )
@@ -82,6 +93,7 @@ class AlipayView(APIView):
     # 支付宝返回函数
     def get(self, request, *args, **kwargs):
         # 向数据库中保存相关数据
+
 
         # print('..............................................')
         # print(request.GET.get('out_trade_no'))
