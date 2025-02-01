@@ -206,7 +206,6 @@ class UploadImageView(APIView):
                     "folder_url": folder_url,
                     "tags": tags,
                     "used_space": user.used_space,
-                    
                 },
                 status=200,
             )  # 返回状态码200，数据格式为JSON

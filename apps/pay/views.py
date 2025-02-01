@@ -62,12 +62,12 @@ class AlipayView(APIView):
             # 获取设备
             divice = request.data.get("divice")
 
-            if divice == 'phone':
+            if divice == "phone":
                 model.product_code = "QUICK_WAP_WAY"
             else:
                 model.product_code = "FAST_INSTANT_TRADE_PAY"
             # 创建支付请求
-            if divice == 'phone':
+            if divice == "phone":
                 request_data = AlipayTradeWapPayRequest(biz_model=model)
             else:
                 request_data = AlipayTradePagePayRequest(biz_model=model)
@@ -93,7 +93,6 @@ class AlipayView(APIView):
     # 支付宝返回函数
     def get(self, request, *args, **kwargs):
         # 向数据库中保存相关数据
-
 
         # print('..............................................')
         # print(request.GET.get('out_trade_no'))
