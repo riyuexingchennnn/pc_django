@@ -8,6 +8,7 @@ class Image(models.Model):
         primary_key=True, default=uuid.uuid4, editable=False
     )  # 图片唯一标识
     url = models.URLField(max_length=200, default="images/default.png")  # 图片URL
+    folder_url = models.URLField(max_length=200, default="我的收藏/")  # 图片文件夹URL
     name = models.CharField(max_length=255)  # 图片名称
     description = models.TextField(blank=True, null=True)  # 图片描述
     category = models.CharField(max_length=100, blank=True, null=True)  # 图片分类

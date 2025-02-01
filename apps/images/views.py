@@ -34,6 +34,7 @@ class UploadImageView(APIView):
         time = request.data.get("time") or None  # 获取拍摄时间
         category = request.data.get("category") or "未分类"  # 获取分组
         position = request.data.get("position") or None  # 获取位置
+        folder_url = request.data.get("folder_url") or "root/"  # 获取文件夹
 
         # 首先检查用户存储空间是否足够
         user = User.objects.get(id=user_id)
@@ -178,6 +179,7 @@ class UploadImageView(APIView):
                 user_id=user_id,
                 url=image_url,
                 image_size=image_file.size / 1024.0 / 1024.0,
+                folder_url=folder_url,
             )
 
             logger.info(f"Image instance created: {image_instance}")
@@ -201,8 +203,10 @@ class UploadImageView(APIView):
                     "position": position,
                     "time": time,
                     "id": image_id,
+                    "folder_url": folder_url,
                     "tags": tags,
                     "used_space": user.used_space,
+                    
                 },
                 status=200,
             )  # 返回状态码200，数据格式为JSON
@@ -273,6 +277,7 @@ class UpdateImageView(APIView):
         position = request.data.get("position")
         time = request.data.get("time")
         tags = request.data.get("tags")
+        folder_url = request.data.get("folder_url")
 
         if not image_id:
             return Response(
@@ -289,6 +294,7 @@ class UpdateImageView(APIView):
             image_record.time = time or image_record.time
             image_record.name = name or image_record.name
             image_record.description = description or image_record.description
+            image_record.folder_url = folder_url or image_record.folder_url
             image_record.save()
 
             ImageTag.objects.filter(image_id=image_id).delete()
@@ -305,6 +311,7 @@ class UpdateImageView(APIView):
                     "position": image_record.position,
                     "time": image_record.time,
                     "tags": tags,
+                    "folder_url": image_record.folder_url,
                 },
                 status=200,  # 返回200，表示成功
             )
@@ -360,6 +367,7 @@ class DownloadImageView(APIView):
                         "time": image_record.time,
                         "id": image_record.id,
                         "presigned_url": presigned_url,
+                        "folder_url": image_record.folder_url,
                         "tags": tags,
                     }
                     images.append(image_info)
