@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.hashers import make_password, check_password
 from django.db import models
 from django.utils import timezone
+import random, string
 
 
 class CustomUserManager(BaseUserManager):
@@ -27,12 +28,12 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(username, email, password, **extra_fields)
 
 
+
+
+
 class User(models.Model):
-    verification_code = models.CharField(
-        max_length=6, blank=True, verbose_name="验证码"
-    )
-    # 用户已经使用的空间，单位为MB，免费用户为1024MB
-    used_space = models.FloatField(default=1024.0, verbose_name="已用空间")
+    # todo
+    space = models.IntegerField(default=0, verbose_name="消耗空间")
     username = models.CharField(max_length=150, unique=True, verbose_name="用户名")
     email = models.EmailField(unique=True, verbose_name="邮箱")
     password = models.CharField(max_length=255, verbose_name="密码", blank=True)
@@ -74,3 +75,28 @@ class User(models.Model):
 
     def check_password(self, password):
         return check_password(password, self.password)
+    
+    
+# 验证码
+class VerificationCode(models.Model):
+    email = models.EmailField(unique=True, verbose_name="邮箱")
+    code = models.CharField(max_length=6, verbose_name="验证码")
+    time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
+
+    class Meta:
+        db_table = "verification_code"
+        verbose_name = "验证码"
+        verbose_name_plural = "验证码"
+    def __str__(self):
+        return self.email
+    
+    objects = models.Manager()
+    def is_expired(self):
+        # 判断验证码是否过期
+        return timezone.now() > self.time + timezone.timedelta(minutes=5)
+    def create_code(self, email):
+        if VerificationCode.objects.filter(email=email).exists():
+            VerificationCode.objects.filter(email=email).delete()
+        verificationCode = VerificationCode(email=email, code="".join(random.sample(string.digits, 6)))
+        verificationCode.save()
+        return verificationCode.code

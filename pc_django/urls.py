@@ -17,14 +17,20 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 
 # 导入自定义的视图函数
 from apps.accounts.views import (
     LoginView,
     RegisterView,
+    VerifyTokenView,
+    SendCodeView,
+    UserInfoView,
+    LoginOutView,
+    ChangeAvatarView,
     ChangePasswordView,
     ChangeInfoView,
-    ChangeAvatarView,
 )
 from apps.images.views import (
     UploadImageView,
@@ -43,9 +49,21 @@ urlpatterns = [
     path("admin/", admin.site.urls),  # Django 自带的后台管理系统
     # ------------------------------ accounts ------------------------------
     # 登录页面
-    path("user/login", LoginView.as_view(), name="login"),
+    path("api/login", LoginView.as_view(), name="login"),
     # 注册
-    path("user/register", RegisterView.as_view(), name="register"),
+    path("api/register", RegisterView.as_view(), name="register"),
+    # Token 验证
+    path("api/validate-token", VerifyTokenView.as_view(), name="token"),
+    # 发送验证码
+    path("api/send-email-verification-code", SendCodeView.as_view(), name="send_verification_code"),
+    # 获取用户信息
+    path("api/user-info", UserInfoView.as_view(), name="user_info"),
+    # 登出
+    path("api/logout", LoginOutView.as_view(), name="logout"),
+
+
+
+    #以下URL未测试
     # 基础信息修改
     path("user/change_info", ChangeInfoView.as_view(), name="change_info"),
     # 头像修改
@@ -79,4 +97,4 @@ urlpatterns = [
     ),
     path("search/image/tags", SelectImagesByTags.as_view(), name="search_images_tags"),
     # -----------------------------------------------------------------------------
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
