@@ -1,32 +1,16 @@
 import re, logging, random, string, jwt
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from apps.accounts.models import User, VerificationCode
-from apps.notifications.views import send_mail
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
 from django.core.cache import cache
 
+from apps.utils.email_util import send_mail
+from apps.utils.token_util import parse_token
+
 logger = logging.getLogger("django")
-
-# token验证，已经完成测试, 为了其他模块复用，单独提出来
-def parse_token(token):
-    # 检查是否在黑名单缓存中（用来实现登出功能）
-    if cache.get(token):
-        return None
-    try:
-        # 使用相同的密钥进行解码
-        payload = jwt.decode(token,'secret_code', algorithms=['HS256'])
-        return payload
-    except jwt.ExpiredSignatureError:
-        # 如果token过期
-        return None
-    except jwt.InvalidTokenError:
-        # 如果token无效
-        return None
-
 
 
 # 检查会话是否过期,已经完成测试
@@ -35,23 +19,20 @@ class VerifyTokenView(APIView):
         token = request.data.get("token")
         if token is None:
             return Response(
-                {
-                    "status": "error",
-                    "message": "Token not provided"}, status=status.HTTP_401_UNAUTHORIZED
+                {"status": "error", "message": "Token not provided"},
+                status=status.HTTP_401_UNAUTHORIZED,
             )
         # 解析token
         payload = parse_token(token)
         # token过期或者无效
         if payload is None:
             return Response(
-                {
-                    "status": "error",
-                    "message": "Token expired or invalid"}, status=status.HTTP_401_UNAUTHORIZED
+                {"status": "error", "message": "Token expired or invalid"},
+                status=status.HTTP_401_UNAUTHORIZED,
             )
         return Response(
-            {
-                "status": "success",
-                "message": "Token is valid"}, status=status.HTTP_200_OK
+            {"status": "success", "message": "Token is valid"},
+            status=status.HTTP_200_OK,
         )
 
 
@@ -82,17 +63,21 @@ class LoginView(APIView):
                 "exp": expiration_time,
             }
             token = jwt.encode(payload, "secret_code", algorithm="HS256")
-            return Response({
-                "status": "success",
-                "token": token,
-                "base_login_name": user.username,
-                }, status=status.HTTP_200_OK)
-        else:
             return Response(
                 {
-                    "status": "error",
-                    "message": "用户名或密码错误"}, status=status.HTTP_401_UNAUTHORIZED
+                    "status": "success",
+                    "token": token,
+                    "base_login_name": user.username,
+                },
+                status=status.HTTP_200_OK,
             )
+        else:
+            return Response(
+                {"status": "error", "message": "用户名或密码错误"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+
 # 使用验证码注册，已完成测试
 class RegisterView(APIView):
     def post(self, request):
@@ -145,7 +130,8 @@ class RegisterView(APIView):
             status=status.HTTP_201_CREATED,
         )
 
-# 发送注册验证码 ，已完成测试           
+
+# 发送注册验证码 ，已完成测试
 class SendCodeView(APIView):
     def post(self, request):
         email = request.data.get("email")
@@ -153,16 +139,13 @@ class SendCodeView(APIView):
         email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         if not re.match(email_regex, email):
             return Response(
-                {"message": "Invalid email format"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"message": "Invalid email format"}, status=status.HTTP_400_BAD_REQUEST
             )
         # 验证邮箱是否存在
         if User.objects.filter(email=email).exists():
             return Response(
-                {
-                    "status": "error",
-                    "message": "Email already exists"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"status": "error", "message": "Email already exists"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
         # 生成验证码并保存
         verificationCode = VerificationCode()
@@ -171,16 +154,14 @@ class SendCodeView(APIView):
         send_mail(
             recipient_list=[email],
             subject="验证码",
-            body = "尊敬的影云用户(" + email + ")您好，您的验证码如下: " + code
+            body="尊敬的影云用户(" + email + ")您好，您的验证码如下: " + code,
         )
         # 返回发送成功的信息和验证码
         return Response(
-            {
-                "status": "success",
-                "message": "Verification code sent"
-            },
-            status=status.HTTP_200_OK
+            {"status": "success", "message": "Verification code sent"},
+            status=status.HTTP_200_OK,
         )
+
 
 # 获取用户信息,已完成测试，可以通过返回的URL直接访问头像
 class UserInfoView(APIView):
@@ -189,14 +170,12 @@ class UserInfoView(APIView):
         token = request.data.get("token")
         if not token:
             return Response(
-                {"message": "Token is required"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"message": "Token is required"}, status=status.HTTP_400_BAD_REQUEST
             )
         payload = parse_token(token)
         if not payload:
             return Response(
-                {"message": "Invalid token"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
             )
         user_id = payload.get("user_id")
         user = User.objects.get(id=user_id)
@@ -207,24 +186,23 @@ class UserInfoView(APIView):
                 "email": user.email,
                 "avatar": request.build_absolute_uri(user.avatar.url),
                 "membership": user.membership,
-                "space": user.space,
+                "space": user.used_space,
             },
-            status=status.HTTP_200_OK
+            status=status.HTTP_200_OK,
         )
+
+
 # 登出
 class LoginOutView(APIView):
     def post(self, request):
         token = request.data.get("token")
         if not token:
             return Response(
-                {"message": "Token is required"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"message": "Token is required"}, status=status.HTTP_400_BAD_REQUEST
             )
         cache.set(token, True, 3600)
-        return Response(
-            {"message": "Logout successfully"},
-            status=status.HTTP_200_OK
-        )
+        return Response({"message": "Logout successfully"}, status=status.HTTP_200_OK)
+
 
 # 忘记密码
 class ChangePasswordView(APIView):

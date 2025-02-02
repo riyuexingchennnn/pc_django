@@ -1,5 +1,3 @@
-from django.shortcuts import render
-
 # -*- coding:utf-8 -*-
 import smtplib
 import ssl
@@ -8,23 +6,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formataddr
 
-# 调用格式
-
-# 接收人地址列表
-# to_email_list = ["3146395254@qq.com"]
-# 邮件主题
-# subject_txt = "[测试主题]"
-# 邮件内容
-# body_content = (
-#    "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n<title>hello world</title>\n</head>\n<body>\n "
-#   "<h1>我的第一个标题</h1>\n    <p>我的第一个段落。</p>\n</body>\n</html>")
-# 发送邮件
-# send_mail(to_email_list, subject_txt, body_content)
-
 
 # 腾讯云只免费发送1000条邮件
-
-
 def send_mail(recipient_list, subject, body):
     # 发信主机域名
     host = "smtp.qcloudmail.com"
@@ -90,7 +73,7 @@ def send_mail(recipient_list, subject, body):
 
 if __name__ == "__main__":
     # 接收人地址列表
-    to_email_list = ["3146395254@qq.com"]
+    to_email_list = ["1287829233@qq.com"]
     # 邮件主题
     subject_txt = "[测试主题]"
     # 邮件内容

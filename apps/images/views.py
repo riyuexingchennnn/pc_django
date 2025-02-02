@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 import logging
 import uuid
 import io
@@ -17,7 +18,12 @@ from .utils.ai import (
 )
 from .models import Image, ImageTag
 from apps.accounts.models import User
-from .utils.cos import upload_image_cos, delete_image_cos, generate_image_url_cos
+from apps.utils.token_util import parse_token
+from apps.utils.cos_util import (
+    upload_image_cos,
+    delete_image_cos,
+    generate_image_url_cos,
+)
 
 # 设置日志
 logger = logging.getLogger("django")
@@ -35,6 +41,29 @@ class UploadImageView(APIView):
         category = request.data.get("category") or "未分类"  # 获取分组
         position = request.data.get("position") or None  # 获取位置
         folder_url = request.data.get("folder_url") or "root/"  # 获取文件夹
+        token = request.data.get("token")  # 获取token
+
+        # 验证必填字段，图片文件
+        if not image_file or not token or not user_id:
+            return Response(
+                {"success": False, "message": "Image file and token is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )  # 返回400错误，表示请求错误
+
+        # 解析token
+        payload = parse_token(token)
+        if not payload:
+            return Response(
+                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        payload_user_id = payload.get("user_id")
+        # print(type(payload_user_id))  # 输出 payload_user_id 的类型      int
+        # print(type(user_id))  # 输出 user_id 的类型                      str
+        # 验证token中的用户ID和请求中的用户ID是否一致
+        if payload_user_id != int(user_id):
+            return Response(
+                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         # 首先检查用户存储空间是否足够
         user = User.objects.get(id=user_id)
@@ -47,7 +76,7 @@ class UploadImageView(APIView):
                     "success": False,
                     "message": "User storage space is full. Upgrade to premium membership to upload more.",
                 },
-                status=400,
+                status=status.HTTP_400_BAD_REQUEST,
             )  # 返回400错误，表示请求错误
         elif (
             user.membership == "silver"
@@ -58,7 +87,7 @@ class UploadImageView(APIView):
                     "success": False,
                     "message": "User storage space is full. Upgrade to premium membership to upload more.",
                 },
-                status=400,
+                status=status.HTTP_400_BAD_REQUEST,
             )  # 返回400错误，表示请求错误
         elif (
             user.membership == "gold"
@@ -66,7 +95,7 @@ class UploadImageView(APIView):
         ):
             return Response(
                 {"success": False, "message": "User storage space is full."},
-                status=400,
+                status=status.HTTP_400_BAD_REQUEST,
             )  # 返回400错误，表示请求错误
 
         # 生成一个唯一的UUID作为文件名
@@ -76,17 +105,10 @@ class UploadImageView(APIView):
             f"Metadata - user_id: {user_id}, time: {time}, category: {category}, position: {position}, name: {image_file.name}"
         )
 
-        # 验证必填字段，图片文件
-        if not image_file or not user_id:
-            return Response(
-                {"success": False, "message": "Image file and user_id is required"},
-                status=400,
-            )  # 返回400错误，表示请求错误
-
         if image_file.size > 10 * 1024 * 1024:
             return Response(
                 {"success": False, "message": "Image file size should not exceed 10MB"},
-                status=400,
+                status=status.HTTP_400_BAD_REQUEST,
             )  # 返回400错误，表示请求错误
 
         # 确保文件可以读取
@@ -135,7 +157,8 @@ class UploadImageView(APIView):
             # print(result, reason)
             if result == "不合规":
                 return Response(
-                    {"success": False, "message": reason}, status=400
+                    {"success": False, "message": reason},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )  # 返回400错误，表示请求错误
 
             tags = image_understanding(encoded_image)  # 调用AI接口进行图像理解
@@ -155,7 +178,8 @@ class UploadImageView(APIView):
         except Exception as e:
             logger.error(f"Error reading file: {e}")
             return Response(
-                {"success": False, "message": "Error reading file"}, status=500
+                {"success": False, "message": "Error reading file"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
         try:
@@ -207,14 +231,14 @@ class UploadImageView(APIView):
                     "tags": tags,
                     "used_space": user.used_space,
                 },
-                status=200,
+                status=status.HTTP_200_OK,
             )  # 返回状态码200，数据格式为JSON
 
         except (CosClientError, CosServiceError) as e:
             logger.error(f"Error uploading image: {e}")
             return Response(
                 {"success": False, "message": "Image upload failed", "error": str(e)},
-                status=500,
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )  # 上传失败时，返回500状态码
 
 
@@ -225,12 +249,26 @@ class DeleteImageView(APIView):
         image_id = request.data.get("image_id")
         user_id = request.data.get("user_id")
         user = User.objects.get(id=user_id)
+        token = request.data.get("token")
 
         # 验证必填字段
-        if not image_id or not user_id:
+        if not image_id or not user_id or not token:
             return Response(
                 {"success": False, "message": "Image id and user_id is required"},
-                status=400,  # 返回400错误，表示请求错误
+                status=status.HTTP_400_BAD_REQUEST,  # 返回400错误，表示请求错误
+            )
+
+        # 解析token
+        payload = parse_token(token)
+        if not payload:
+            return Response(
+                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        payload_user_id = payload.get("user_id")
+        # 验证token中的用户ID和请求中的用户ID是否一致
+        if payload_user_id != user_id:
+            return Response(
+                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
@@ -254,13 +292,13 @@ class DeleteImageView(APIView):
                     "message": "Image deleted successfully",
                     "used_space": user.used_space,
                 },
-                status=200,  # 返回200，表示成功
+                status=status.HTTP_200_OK,  # 返回200，表示成功
             )
         except ObjectDoesNotExist:
             # 如果数据库中没有找到对应的记录
             return Response(
                 {"success": False, "message": "Image not found in database"},
-                status=404,  # 返回404，表示资源未找到
+                status=status.HTTP_404_NOT_FOUND,  # 返回404，表示资源未找到
             )
 
 
@@ -277,11 +315,25 @@ class UpdateImageView(APIView):
         time = request.data.get("time")
         tags = request.data.get("tags")
         folder_url = request.data.get("folder_url")
+        token = request.data.get("token")
 
-        if not image_id:
+        # 解析token
+        payload = parse_token(token)
+        if not payload:
+            return Response(
+                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        payload_user_id = payload.get("user_id")
+        # 验证token中的用户ID和请求中的用户ID是否一致
+        if payload_user_id != user_id:
+            return Response(
+                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not image_id or not token:
             return Response(
                 {"success": False, "message": "Image id is required"},
-                status=400,  # 返回400错误，表示请求错误
+                status=status.HTTP_400_BAD_REQUEST,  # 返回400错误，表示请求错误
             )
         try:
             # 查找数据库中的图片记录
@@ -312,13 +364,13 @@ class UpdateImageView(APIView):
                     "tags": tags,
                     "folder_url": image_record.folder_url,
                 },
-                status=200,  # 返回200，表示成功
+                status=status.HTTP_200_OK,  # 返回200，表示成功
             )
         except ObjectDoesNotExist:
             # 如果数据库中没有找到对应的记录
             return Response(
                 {"success": False, "message": "Image not found in database"},
-                status=404,  # 返回404，表示资源未找到
+                status=status.HTTP_404_NOT_FOUND,  # 返回404，表示资源未找到
             )
 
 
@@ -327,15 +379,26 @@ class DownloadImageView(APIView):
     def post(self, request, *args, **kwargs):
         # 获取用户ID
         user_id = request.data.get("user_id")
-        ####################################
-        # 也许还要加入本地已经有的云端图片id列表
-        ####################################
+        token = request.data.get("token")
+
+        # 解析token
+        payload = parse_token(token)
+        if not payload:
+            return Response(
+                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        payload_user_id = payload.get("user_id")
+        # 验证token中的用户ID和请求中的用户ID是否一致
+        if payload_user_id != user_id:
+            return Response(
+                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         # 验证必填字段
-        if not user_id:
+        if not user_id or not token:
             return Response(
                 {"success": False, "message": "User id is required"},
-                status=400,  # 返回400错误，表示请求错误
+                status=status.HTTP_400_BAD_REQUEST,  # 返回400错误，表示请求错误
             )
 
         try:
@@ -378,16 +441,16 @@ class DownloadImageView(APIView):
                             "success": False,
                             "message": f"Error generating presigned URL: {e}",
                         },
-                        status=505,  # 返回505错误，表示服务器内部错误
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,  # 返回505错误，表示服务器内部错误
                     )
 
             return Response(
                 {"success": True, "message": images},
-                status=200,  # 返回200，表示成功
+                status=status.HTTP_200_OK,  # 返回200，表示成功
             )
         except ObjectDoesNotExist:
             # 如果数据库中没有找到对应的记录
             return Response(
                 {"success": False, "message": "Image not found in database"},
-                status=404,  # 返回404，表示资源未找到
+                status=status.HTTP_404_NOT_FOUND,  # 返回404，表示资源未找到
             )

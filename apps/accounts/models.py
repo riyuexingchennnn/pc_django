@@ -28,12 +28,9 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(username, email, password, **extra_fields)
 
 
-
-
-
 class User(models.Model):
-    # todo
-    space = models.IntegerField(default=0, verbose_name="消耗空间")
+
+    used_space = models.FloatField(default=0.0, verbose_name="消耗空间")  # 单位MB
     username = models.CharField(max_length=150, unique=True, verbose_name="用户名")
     email = models.EmailField(unique=True, verbose_name="邮箱")
     password = models.CharField(max_length=255, verbose_name="密码", blank=True)
@@ -75,8 +72,8 @@ class User(models.Model):
 
     def check_password(self, password):
         return check_password(password, self.password)
-    
-    
+
+
 # 验证码
 class VerificationCode(models.Model):
     email = models.EmailField(unique=True, verbose_name="邮箱")
@@ -87,16 +84,21 @@ class VerificationCode(models.Model):
         db_table = "verification_code"
         verbose_name = "验证码"
         verbose_name_plural = "验证码"
+
     def __str__(self):
         return self.email
-    
+
     objects = models.Manager()
+
     def is_expired(self):
         # 判断验证码是否过期
         return timezone.now() > self.time + timezone.timedelta(minutes=5)
+
     def create_code(self, email):
         if VerificationCode.objects.filter(email=email).exists():
             VerificationCode.objects.filter(email=email).delete()
-        verificationCode = VerificationCode(email=email, code="".join(random.sample(string.digits, 6)))
+        verificationCode = VerificationCode(
+            email=email, code="".join(random.sample(string.digits, 6))
+        )
         verificationCode.save()
         return verificationCode.code

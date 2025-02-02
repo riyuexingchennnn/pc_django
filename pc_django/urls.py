@@ -56,15 +56,16 @@ urlpatterns = [
     # Token 验证
     path("api/validate-token", VerifyTokenView.as_view(), name="token"),
     # 发送验证码
-    path("api/send-email-verification-code", SendCodeView.as_view(), name="send_verification_code"),
+    path(
+        "api/send-email-verification-code",
+        SendCodeView.as_view(),
+        name="send_verification_code",
+    ),
     # 获取用户信息
     path("api/user-info", UserInfoView.as_view(), name="user_info"),
     # 登出
     path("api/logout", LoginOutView.as_view(), name="logout"),
-
-
-
-    #以下URL未测试
+    # 以下URL未测试
     # 基础信息修改
     path("user/change_info", ChangeInfoView.as_view(), name="change_info"),
     # 头像修改
@@ -97,6 +98,10 @@ urlpatterns = [
         name="search_images_position",
     ),
     path("search/image/tags", SelectImagesByTags.as_view(), name="search_images_tags"),
-    path("search/image/description", SelectImagesByDescription.as_view(), name="search_images_description")
+    path(
+        "search/image/description",
+        SelectImagesByDescription.as_view(),
+        name="search_images_description",
+    ),
     # -----------------------------------------------------------------------------
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

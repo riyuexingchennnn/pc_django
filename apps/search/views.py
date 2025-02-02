@@ -93,6 +93,7 @@ class SelectImagesByTags(APIView):
             }
         )
 
+
 class SelectImagesByDescription(APIView):
     # 按描述搜索
     def post(self, request, *args, **kwargs):
@@ -115,7 +116,9 @@ class SelectImagesByDescription(APIView):
         similarity_scores = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1])
 
         # 将相似度与图片关联
-        image_similarity_pairs = [(images[i], similarity_scores[0][i]) for i in range(len(images))]
+        image_similarity_pairs = [
+            (images[i], similarity_scores[0][i]) for i in range(len(images))
+        ]
 
         # 过滤出余弦相似度大于0.1的图片
         filtered_images = [pair for pair in image_similarity_pairs if pair[1] > 0.1]
@@ -124,8 +127,9 @@ class SelectImagesByDescription(APIView):
         filtered_images.sort(key=lambda x: x[1], reverse=True)
 
         # 获取排序后的图片列表（返回url和id）
-        result = [{"image_id": image.id, "image_url": image.url} for image, _ in filtered_images]
+        result = [
+            {"image_id": image.id, "image_url": image.url}
+            for image, _ in filtered_images
+        ]
 
         return JsonResponse({"state": "success", "images": result})
-
-

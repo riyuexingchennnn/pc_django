@@ -15,9 +15,9 @@
 │   ├── admin
 │   ├── ai
 │   ├── images
-│   ├── notifications
 │   ├── pay
-│   └── search
+│   ├── search
+│   └── utils
 ├── docs
 ├── LICENSE
 ├── manage.py
@@ -39,9 +39,9 @@
   - admin: 后台管理模块
   - ai: 人工智能模块
   - images: 图片管理模块
-  - notifications: 通知模块
   - pay: 支付模块
   - search: 搜索模块
+  - utils: 工具模块, 存放一些公共函数
 - docs: 存放项目文档图片
 - log: 存放日志文件
 - media: 存放上传的用户头像
@@ -207,6 +207,14 @@ logger.warning("This is a warning message")
 logger.error("This is an error message")
 logger.critical("This is a critical message")
 ```
+
+### 3. 规范画图
+
+统一使用[plantuml](https://www.plantuml.com/)画图，然后导出png格式图片。
+
+![](./docs/plantUML.png)
+
+> 推荐和chatGPT一起使用，描述UML图需求，然后让chatGPT生成对应的UML代码，复制到plantuml中画图。
 
 ## 三、项目运行
 
