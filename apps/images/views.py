@@ -24,8 +24,8 @@ logger = logging.getLogger("django")
 
 
 # 上传图片视图
-# 因为有众多步骤，所以导致上传图片相对较慢，一张图片大约8.81秒
-# 如果是普通会员，没有图像描述功能，上传时间大约为4-7秒
+# 因为有众多步骤，所以导致上传图片相对较慢，一张图片大约20秒
+# 如果是普通会员，没有图像描述功能，上传时间大约为10秒
 class UploadImageView(APIView):
     def post(self, request, *args, **kwargs):
         # 获取文件和表单字段
