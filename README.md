@@ -2,6 +2,8 @@
 
 # 影云后端django项目
 
+![](./docs/piccloud.jpg)
+
 ---
 
 ## 一、项目简介
