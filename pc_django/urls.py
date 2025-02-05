@@ -28,6 +28,7 @@ from apps.accounts.views import (
     SendCodeView,
     UserInfoView,
     LoginOutView,
+    RefreshTokenView,
     ChangeAvatarView,
     ChangePasswordView,
     ChangeInfoView,
@@ -65,6 +66,8 @@ urlpatterns = [
     path("api/user-info", UserInfoView.as_view(), name="user_info"),
     # 登出
     path("api/logout", LoginOutView.as_view(), name="logout"),
+    # 通过refresh_token刷新access_token
+    path("api/refresh-token", RefreshTokenView.as_view(), name="refresh_token"),
     # 以下URL未测试
     # 基础信息修改
     path("user/change_info", ChangeInfoView.as_view(), name="change_info"),

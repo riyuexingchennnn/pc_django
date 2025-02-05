@@ -13,10 +13,10 @@ from apps.utils.token_util import parse_token
 logger = logging.getLogger("django")
 
 
-# 检查会话是否过期,已经完成测试
+# 检查会话是否过期,待测试
 class VerifyTokenView(APIView):
     def post(self, request):
-        token = request.data.get("token")
+        token = request.META.get("HTTP_AUTHORIZATION")
         if token is None:
             return Response(
                 {"status": "error", "message": "Token not provided"},
@@ -34,6 +34,32 @@ class VerifyTokenView(APIView):
             {"status": "success", "message": "Token is valid"},
             status=status.HTTP_200_OK,
         )
+class RefreshTokenView(APIView):
+    def post(self, request):
+        refresh_token = request.MATA.get("HTTP_AUTHORIZATION")
+        if refresh_token is None:
+            return Response(
+                {"status": "error", "message": "No refresh token provided"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        payload = parse_token(refresh_token)
+        if payload is None:
+            return Response(
+                {"status": "error", "message": "Invalid refresh token"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        user_id = payload["user_id"]
+        # access_token生成
+        expiration_time = timezone.now() + timezone.timedelta(minutes=5)
+        payload = {
+            "user_id": user_id,
+            "exp": expiration_time,
+        }
+        access_token = jwt.encode(payload, "secret_code", algorithm="HS256")
+        return Response(
+            {"access_token": access_token},
+        )
+
 
 
 # 登录，已完成测试
@@ -55,18 +81,25 @@ class LoginView(APIView):
                 {"message": "User does not exist"}, status=status.HTTP_404_NOT_FOUND
             )
         if user.check_password(password):
-            # token生成
-            # 到期时间1h
-            expiration_time = timezone.now() + timezone.timedelta(hours=1)
+            # access_token生成
+            expiration_time = timezone.now() + timezone.timedelta(minutes=5)
             payload = {
                 "user_id": user.id,
                 "exp": expiration_time,
             }
-            token = jwt.encode(payload, "secret_code", algorithm="HS256")
+            access_token = jwt.encode(payload, "secret_code", algorithm="HS256")
+            # refresh_token生成
+            expiration_time = timezone.now() + timezone.timedelta(days=7)
+            payload = {
+                "user_id": user.id,
+                "exp": expiration_time,
+            }
+            refresh_token = jwt.encode(payload, "secret_code", algorithm="HS256")
             return Response(
                 {
                     "status": "success",
-                    "token": token,
+                    "access_token": access_token,
+                    "refresh_token": refresh_token,
                     "base_login_name": user.username,
                 },
                 status=status.HTTP_200_OK,
@@ -195,12 +228,14 @@ class UserInfoView(APIView):
 # 登出
 class LoginOutView(APIView):
     def post(self, request):
-        token = request.data.get("token")
-        if not token:
+        refresh_token = request.META.get("HTTP_REFRESH_TOKEN")
+        access_token = request.META.get("HTTP_ACCESS_TOKEN")
+        if not refresh_token or not access_token:
             return Response(
                 {"message": "Token is required"}, status=status.HTTP_400_BAD_REQUEST
             )
-        cache.set(token, True, 3600)
+        cache.set(refresh_token, True, 604800)
+        cache.set(access_token, True, 300)
         return Response({"message": "Logout successfully"}, status=status.HTTP_200_OK)
 
 
