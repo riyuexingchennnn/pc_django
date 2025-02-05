@@ -29,9 +29,9 @@ from apps.accounts.views import (
     UserInfoView,
     LoginOutView,
     RefreshTokenView,
-    ChangeAvatarView,
     ChangePasswordView,
     ChangeInfoView,
+    DeleteUserView,
 )
 from apps.images.views import (
     UploadImageView,
@@ -68,13 +68,13 @@ urlpatterns = [
     path("api/logout", LoginOutView.as_view(), name="logout"),
     # 通过refresh_token刷新access_token
     path("api/refresh-token", RefreshTokenView.as_view(), name="refresh_token"),
-    # 以下URL未测试
+    # 忘记密码
+    path("api/change_password", ChangePasswordView.as_view(), name="change_password"),
     # 基础信息修改
-    path("user/change_info", ChangeInfoView.as_view(), name="change_info"),
-    # 头像修改
-    path("user/change_avatar", ChangeAvatarView.as_view(), name="change_avatar"),
-    # 修改密码
-    path("user/change_password", ChangePasswordView.as_view(), name="change_password"),
+    path("api/change_info", ChangeInfoView.as_view(), name="change_info"),
+    # 用户注销
+    path("api/delete_user", DeleteUserView.as_view(), name="delete_user"),
+
     # ----------------------------------------------------------------------
     # ------------------------------ images --------------------------------
     # 图片上传
