@@ -155,20 +155,28 @@ class SendCodeView(APIView):
             recipient_list=[email],
             subject="影云验证码",
             body=f"""
-            尊敬的影云用户 {email}，您好！
-            
-            您的验证码如下：
-            
-            <strong>{code}</strong>
-            
-            为确保账户安全，验证码将在 5 分钟后过期，请及时使用。
-            
-            如果您没有请求此验证码，请忽略此邮件。
-            
-            祝您使用愉快！
-            影云团队
+            <html>
+            <body>
+                <p>尊敬的影云用户 {email}，您好！</p>
+                
+                <p>您的验证码如下：</p>
+                
+                <div style="font-size: 24px; font-weight: bold; color: #4CAF50;">
+                    {code}
+                </div>
+                
+                <p>为确保账户安全，验证码将在 5 分钟后过期，请及时使用。</p>
+                
+                <p>如果您没有请求此验证码，请忽略此邮件。</p>
+                
+                <p>祝您使用愉快！</p>
+                
+                <p>影云团队</p>
+            </body>
+            </html>
             """
         )
+
 
         # 返回发送成功的信息和验证码
         return Response(
@@ -250,18 +258,26 @@ class ChangePasswordView(APIView):
                 recipient_list=[email],
                 subject="修改密码请求",
                 body=f"""
-                尊敬的影云用户 {email}，您好！
-                
-                您的密码修改请求已收到。为确保您的账户安全，请使用以下验证码进行身份验证：
-                
-                <strong>{verification_code}</strong>
-                
-                此验证码将在 5 分钟后过期，请尽快完成操作。如果您没有发起此请求，请忽略此邮件。
-                
-                祝您使用愉快！
-                影云团队
+                <html>
+                <body>
+                    <p>尊敬的影云用户 {email}，您好！</p>
+                    
+                    <p>您的密码修改请求已收到。为确保您的账户安全，请使用以下验证码进行身份验证：</p>
+                    
+                    <div style="font-size: 24px; font-weight: bold; color: #4CAF50;">
+                        {verification_code}
+                    </div>
+                    
+                    <p>此验证码将在 5 分钟后过期，请尽快完成操作。如果您没有发起此请求，请忽略此邮件。</p>
+                    
+                    <p>祝您使用愉快！</p>
+                    
+                    <p>影云团队</p>
+                </body>
+                </html>
                 """
             )
+
 
             return Response(
                 {"message": "Verification code sent"}, status=status.HTTP_200_OK
