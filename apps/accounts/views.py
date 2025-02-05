@@ -39,7 +39,7 @@ class VerifyTokenView(APIView):
 # 刷新access_token,待测试
 class RefreshTokenView(APIView):
     def post(self, request):
-        refresh_token = request.MATA.get("HTTP_AUTHORIZATION")
+        refresh_token = request.META.get("HTTP_AUTHORIZATION")
         if refresh_token is None:
             return Response(
                 {"status": "error", "message": " refresh_token 不能为空"},
@@ -76,11 +76,11 @@ class LoginView(APIView):
             user = User.objects.get(email=email)
         if user is None:
             return Response(
-                {"message": "User does not exist"}, status=status.HTTP_404_NOT_FOUND
+                {"message": "用户不存在"}, status=status.HTTP_404_NOT_FOUND
             )
         if user.check_password(password):
             # access_token生成
-            expiration_time = timezone.now() + timezone.timedelta(minutes=5)
+            expiration_time = timezone.now() + timezone.timedelta(minutes=15)
             payload = {
                 "user_id": user.id,
                 "exp": expiration_time,
@@ -224,6 +224,10 @@ class UserInfoView(APIView):
             return Response(
                 {"message": "token未提供"}, status=status.HTTP_400_BAD_REQUEST
             )
+        # 处理 Bearer 类型的 Token
+        if token.startswith("Bearer "):
+            token = token[7:]  # 去掉 "Bearer " 前缀
+
         payload = parse_token(token)
         if not payload:
             return Response(
@@ -239,6 +243,7 @@ class UserInfoView(APIView):
                 "avatar": request.build_absolute_uri(user.avatar.url),
                 "membership": user.membership,
                 "space": user.used_space,
+                "user_id": user.id,
             },
             status=status.HTTP_200_OK,
         )

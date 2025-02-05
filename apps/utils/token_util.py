@@ -1,6 +1,8 @@
 from django.core.cache import cache
 import jwt
+import logging
 
+logger = logging.getLogger("django")
 
 # token验证，已经完成测试, 为了其他模块复用，单独提出来
 def parse_token(token):
@@ -13,7 +15,9 @@ def parse_token(token):
         return payload
     except jwt.ExpiredSignatureError:
         # 如果token过期
+        logger.error("Token过期")
         return None
     except jwt.InvalidTokenError:
         # 如果token无效
+        logger.error("Token无效")
         return None
