@@ -167,9 +167,7 @@ class UploadImageView(APIView):
             description = "此图片没有描述"
             # 如果是普通会员
             if not User.objects.get(id=user_id).membership == "free":
-                description = image_description(
-                    compressed_base64
-                )  # 调用AI接口进行图像描述
+                description = image_description(compressed_base64)  # 调用AI接口进行图像描述
             # print(description)
 
             category = image_classification(compressed_base64)  # 调用AI接口进行图像分类
@@ -188,9 +186,7 @@ class UploadImageView(APIView):
             # 要用文件指针归零
             ############################
             image_file.seek(0)  # 将指针重置到文件的开头!!!
-            response, image_url = upload_image_cos(
-                image_id, image_file
-            )  # 上传图片到腾讯云COS
+            response, image_url = upload_image_cos(image_id, image_file)  # 上传图片到腾讯云COS
             logger.info(f"COS Upload successful: {response}")
 
             image_instance = Image.objects.create(

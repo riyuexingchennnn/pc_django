@@ -71,9 +71,7 @@ class AlipayView(APIView):
                 request_data = AlipayTradeWapPayRequest(biz_model=model)
             else:
                 request_data = AlipayTradePagePayRequest(biz_model=model)
-            request_data.return_url = (
-                "http://localhost:8000/pay/alipay"  # 支付完成后的跳转页面
-            )
+            request_data.return_url = "http://localhost:8000/pay/alipay"  # 支付完成后的跳转页面
             request_data.notify_url = (
                 "http://localhost:8000/pay/alipay/notify"  # 异步通知地址
             )

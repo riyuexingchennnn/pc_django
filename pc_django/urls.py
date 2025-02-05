@@ -74,7 +74,6 @@ urlpatterns = [
     path("api/change_info", ChangeInfoView.as_view(), name="change_info"),
     # 用户注销
     path("api/delete_user", DeleteUserView.as_view(), name="delete_user"),
-
     # ----------------------------------------------------------------------
     # ------------------------------ images --------------------------------
     # 图片上传

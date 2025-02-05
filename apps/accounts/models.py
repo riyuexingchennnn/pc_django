@@ -74,7 +74,6 @@ class User(models.Model):
         return check_password(password, self.password)
 
 
-
 # 验证码
 class VerificationCode(models.Model):
     email = models.EmailField(unique=True, verbose_name="邮箱")

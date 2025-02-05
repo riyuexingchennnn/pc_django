@@ -34,6 +34,8 @@ class VerifyTokenView(APIView):
             {"status": "success", "message": "Token is valid"},
             status=status.HTTP_200_OK,
         )
+
+
 # 刷新access_token,待测试
 class RefreshTokenView(APIView):
     def post(self, request):
@@ -60,7 +62,6 @@ class RefreshTokenView(APIView):
         return Response(
             {"access_token": access_token},
         )
-
 
 
 # 登录，已完成测试
@@ -204,9 +205,8 @@ class SendCodeView(APIView):
                 <p>影云团队</p>
             </body>
             </html>
-            """
+            """,
         )
-
 
         # 返回发送成功的信息和验证码
         return Response(
@@ -303,7 +303,6 @@ class ChangePasswordView(APIView):
         )
 
 
-
 # 信息修改
 class ChangeInfoView(APIView):
     def post(self, request):
@@ -356,6 +355,8 @@ class ChangeInfoView(APIView):
         return Response(
             {"message": "Info changed successfully"}, status=status.HTTP_200_OK
         )
+
+
 # 用户删除,待测试
 class DeleteUserView(APIView):
     def post(self, request):
@@ -372,5 +373,6 @@ class DeleteUserView(APIView):
         user_id = payload.get("user_id")
         user = User.objects.get(id=user_id)
         user.delete()
-        return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
-
+        return Response(
+            {"message": "User deleted successfully"}, status=status.HTTP_200_OK
+        )
