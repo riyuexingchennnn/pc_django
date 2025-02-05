@@ -272,9 +272,7 @@ class ChangePasswordView(APIView):
             )
         # 验证邮箱是否存在
         if not User.objects.filter(email=email).exists():
-            return Response(
-                {"message": "邮箱不存在"}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"message": "邮箱不存在"}, status=status.HTTP_404_NOT_FOUND)
         user = User.objects.get(email=email)
         code = VerificationCode.objects.get(email=email)
         # 验证码不存在
@@ -301,8 +299,10 @@ class ChangePasswordView(APIView):
             {"message": "密码修改成功"},
             status=status.HTTP_200_OK,
         )
+
+
 # 发送忘记密码的验证码
-class ForgetPassword(APIView):
+class ForgetPasswordView(APIView):
     def post(self, request):
         email = request.data.get("email")
         # 验证邮箱格式
@@ -353,6 +353,7 @@ class ForgetPassword(APIView):
             status=status.HTTP_200_OK,
         )
 
+
 # 信息修改
 class ChangeInfoView(APIView):
     def post(self, request):
@@ -402,9 +403,7 @@ class ChangeInfoView(APIView):
             user.avatar = new_avatar
             user.save()
         # 返回修改成功的信息
-        return Response(
-            {"message": "修改信息成功"}, status=status.HTTP_200_OK
-        )
+        return Response({"message": "修改信息成功"}, status=status.HTTP_200_OK)
 
 
 # 用户删除,待测试
@@ -423,6 +422,4 @@ class DeleteUserView(APIView):
         user_id = payload.get("user_id")
         user = User.objects.get(id=user_id)
         user.delete()
-        return Response(
-            {"message": "用户注销成功"}, status=status.HTTP_200_OK
-        )
+        return Response({"message": "用户注销成功"}, status=status.HTTP_200_OK)

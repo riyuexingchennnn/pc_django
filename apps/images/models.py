@@ -28,11 +28,15 @@ class Image(models.Model):
 
 # 图片与标签的关系表
 class ImageTag(models.Model):
-    image_id = models.UUIDField(default=uuid.uuid4, editable=False)  # 图片唯一标识，使用 UUID
+    image_id = models.UUIDField(
+        default=uuid.uuid4, editable=False
+    )  # 图片唯一标识，使用 UUID
     tag_name = models.CharField(max_length=255)  # 标签名称
 
     def __str__(self):
-        return f"Image ID {self.image_id} - {self.tag_name}"  # 返回图片 ID 和标签名的关系
+        return (
+            f"Image ID {self.image_id} - {self.tag_name}"  # 返回图片 ID 和标签名的关系
+        )
 
     class Meta:
         db_table = "image_tag"  # 自定义表名

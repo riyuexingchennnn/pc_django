@@ -26,7 +26,9 @@ class Migration(migrations.Migration):
                 ("space", models.IntegerField(default=0, verbose_name="消耗空间")),
                 (
                     "username",
-                    models.CharField(max_length=150, unique=True, verbose_name="用户名"),
+                    models.CharField(
+                        max_length=150, unique=True, verbose_name="用户名"
+                    ),
                 ),
                 (
                     "email",
