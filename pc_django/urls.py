@@ -32,6 +32,7 @@ from apps.accounts.views import (
     ChangePasswordView,
     ChangeInfoView,
     DeleteUserView,
+    ForgetPasswordView,
 )
 from apps.images.views import (
     UploadImageView,
@@ -56,7 +57,7 @@ urlpatterns = [
     path("api/register", RegisterView.as_view(), name="register"),
     # Token 验证
     path("api/validate-token", VerifyTokenView.as_view(), name="token"),
-    # 发送验证码
+    # 发送注册验证码
     path(
         "api/send-email-verification-code",
         SendCodeView.as_view(),
@@ -70,6 +71,8 @@ urlpatterns = [
     path("api/refresh-token", RefreshTokenView.as_view(), name="refresh_token"),
     # 忘记密码
     path("api/change_password", ChangePasswordView.as_view(), name="change_password"),
+    # 发送忘记密码的验证码
+    path("api/forget_password", ForgetPasswordView.as_view(), name="change_info"),
     # 基础信息修改
     path("api/change_info", ChangeInfoView.as_view(), name="change_info"),
     # 用户注销
