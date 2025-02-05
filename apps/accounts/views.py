@@ -34,6 +34,7 @@ class VerifyTokenView(APIView):
             {"status": "success", "message": "Token is valid"},
             status=status.HTTP_200_OK,
         )
+# 刷新access_token,待测试
 class RefreshTokenView(APIView):
     def post(self, request):
         refresh_token = request.MATA.get("HTTP_AUTHORIZATION")
@@ -66,16 +67,13 @@ class RefreshTokenView(APIView):
 class LoginView(APIView):
     def post(self, request):
         email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-        username_or_email = request.data.get("username_or_email")
+        email = request.data.get("email")
         password = request.data.get("password")
         # 进行登录验证，由于没有使用框架的user表，所以需要手动进行验证
         # 这里支持邮箱和用户名登录
         user = None
-        if re.match(email_regex, username_or_email):
-            if User.objects.filter(email=username_or_email).exists():
-                user = User.objects.get(email=username_or_email)
-        elif User.objects.filter(username=username_or_email).exists():
-            user = User.objects.get(username=username_or_email)
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email=email)
         if user is None:
             return Response(
                 {"message": "User does not exist"}, status=status.HTTP_404_NOT_FOUND
@@ -222,7 +220,7 @@ class SendCodeView(APIView):
 class UserInfoView(APIView):
     def post(self, request):
         # 验证用户身份
-        token = request.data.get("token")
+        token = request.META.get("HTTP_AUTHORIZATION")
         if not token:
             return Response(
                 {"message": "Token is required"}, status=status.HTTP_400_BAD_REQUEST
@@ -320,7 +318,6 @@ class ChangePasswordView(APIView):
         # 验证码验证
         else:
             # 先须要获取验证码 ，这里主要是为了逻辑完备
-            # md单词打错bug找半天
             if user.verification_code is None:
                 return Response(
                     {"message": "No verification code found"},
