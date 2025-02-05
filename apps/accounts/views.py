@@ -186,9 +186,31 @@ class SendCodeView(APIView):
         # 发送验证码到邮箱
         send_mail(
             recipient_list=[email],
-            subject="验证码",
-            body="尊敬的影云用户(" + email + ")您好，您的验证码如下: " + code,
+            subject="影云验证码",
+            body=f"""
+            <html>
+            <body>
+                <p>尊敬的影云用户 {email}，您好！</p>
+                
+                <p>您的验证码如下：</p>
+                
+                <div style="font-size: 24px; font-weight: bold; color: #4CAF50;">
+                    {code}
+                </div>
+                
+                <p>为确保账户安全，验证码将在 5 分钟后过期，请及时使用。</p>
+                
+                <p>如果您没有请求此验证码，请忽略此邮件。</p>
+                
+                <p>祝您使用愉快！</p>
+                
+                <p>影云团队</p>
+            </body>
+            </html>
+            """
         )
+
+
         # 返回发送成功的信息和验证码
         return Response(
             {"status": "success", "message": "Verification code sent"},
@@ -270,11 +292,28 @@ class ChangePasswordView(APIView):
             send_mail(
                 recipient_list=[email],
                 subject="修改密码请求",
-                body="尊敬的影云用户("
-                + email
-                + ")您好，您关于修改密码的验证码如下: "
-                + verification_code,
+                body=f"""
+                <html>
+                <body>
+                    <p>尊敬的影云用户 {email}，您好！</p>
+                    
+                    <p>您的密码修改请求已收到。为确保您的账户安全，请使用以下验证码进行身份验证：</p>
+                    
+                    <div style="font-size: 24px; font-weight: bold; color: #4CAF50;">
+                        {verification_code}
+                    </div>
+                    
+                    <p>此验证码将在 5 分钟后过期，请尽快完成操作。如果您没有发起此请求，请忽略此邮件。</p>
+                    
+                    <p>祝您使用愉快！</p>
+                    
+                    <p>影云团队</p>
+                </body>
+                </html>
+                """
             )
+
+
             return Response(
                 {"message": "Verification code sent"}, status=status.HTTP_200_OK
             )
