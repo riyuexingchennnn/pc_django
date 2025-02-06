@@ -56,7 +56,7 @@ class RefreshTokenView(APIView):
             )
         user_id = payload["user_id"]
         # access_token生成
-        expiration_time = timezone.now() + timezone.timedelta(minutes=5)
+        expiration_time = timezone.now() + timezone.timedelta(minutes=15)
         payload = {
             "user_id": user_id,
             "exp": expiration_time,
@@ -253,14 +253,12 @@ class UserInfoView(APIView):
 # 登出
 class LoginOutView(APIView):
     def post(self, request):
-        refresh_token = request.META.get("HTTP_REFRESH_TOKEN")
-        access_token = request.META.get("HTTP_ACCESS_TOKEN")
-        if not refresh_token or not access_token:
+        refresh_token = request.META.get("HTTP_AUTHORIZATION")
+        if not refresh_token:
             return Response(
                 {"message": "token未提供"}, status=status.HTTP_400_BAD_REQUEST
             )
-        cache.set(refresh_token, True, 604800)
-        cache.set(access_token, True, 300)
+        cache.set(refresh_token, True, 604800) # 拉黑7天
         return Response({"message": "成功退出登录"}, status=status.HTTP_200_OK)
 
 
@@ -363,6 +361,7 @@ class ForgetPasswordView(APIView):
 # 信息修改
 class ChangeInfoView(APIView):
     def post(self, request):
+        
         token = request.META.get("HTTP_AUTHORIZATION")
         if not token:
             return Response(
@@ -404,9 +403,10 @@ class ChangeInfoView(APIView):
             new_username = request.data.get("username")
             user.username = new_username
             user.save()
-            
+
         # 修改用户头像
         if request.FILES.get("avatar"):
+            print("获取头像 " , request.FILES.get("avatar"))
             new_avatar = request.FILES.get("avatar")
 
             new_avatar.seek(0)  # 移动文件指针到开头
