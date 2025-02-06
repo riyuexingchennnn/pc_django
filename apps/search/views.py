@@ -2,8 +2,8 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 from apps.images.models import Image, ImageTag
 from datetime import datetime
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+from apps.search.utils.Cosine_similarity import cos_similarity
+
 
 # Create your views here.
 
@@ -22,13 +22,14 @@ class SelectImagesByTime(APIView):
 
         # # 按时间搜索
         images = Image.objects.filter(user_id=userid, time__date=selectTime)
+        # print(images)
         images_url = [image.url for image in images]
         images_id = [image.id for image in images]
         return JsonResponse(
             {
                 "state": "success",
-                "images_url": images_url,
-                "images_id": images_id,
+                "image_url": images_url,
+                "image_id": images_id,
             }
         )
 
@@ -50,8 +51,8 @@ class SelectImagesByPosition(APIView):
         return JsonResponse(
             {
                 "state": "success",
-                "images_url": images_url,
-                "images_id": images_id,
+                "image_url": images_url,
+                "image_id": images_id,
             }
         )
         pass
@@ -67,29 +68,39 @@ class SelectImagesByTags(APIView):
         print(request.data)
         print("********************************************************")
 
-        urlList = []
-        idList = []
+        # 获取所有符合条件的图片的 URL 和 ID
+        image_ids = ImageTag.objects.filter(tag_name__in=tagslist).values_list(
+            "image_id", flat=True
+        )
+        images = Image.objects.filter(user_id=userid, id__in=image_ids)
+        urls = set(image.url for image in images)
+        ids = set(image.id for image in images)
 
+        # 计算所有标签的交集
         for tag_name in tagslist:
-            image_ids = ImageTag.objects.filter(tag_name=tag_name).values_list(
+            tag_image_ids = ImageTag.objects.filter(tag_name=tag_name).values_list(
                 "image_id", flat=True
             )
-            images = Image.objects.filter(user_id=userid, id__in=image_ids)
-            urls = [image.url for image in images]
-            ids = [image.id for image in images]
+            tag_image_urls = set(
+                image.url for image in Image.objects.filter(id__in=tag_image_ids)
+            )
+            tag_image_ids = set(
+                image.id for image in Image.objects.filter(id__in=tag_image_ids)
+            )
 
-            if tag_name == tagslist[0]:
-                urlList = urls
-                idList = ids
-            else:
-                urlList = list(set(urlList) & set(urls))
-                idList = list(set(idList) & set(ids))
+            # 更新交集
+            urls &= tag_image_urls
+            ids &= tag_image_ids
+
+        # 将结果转换为列表
+        urlList = list(urls)
+        idList = list(ids)
 
         return JsonResponse(
             {
                 "state": "success",
-                "urls": urlList,
-                "ids": idList,
+                "image_url": urlList,
+                "image_id": idList,
             }
         )
 
@@ -108,12 +119,16 @@ class SelectImagesByDescription(APIView):
 
         descriptionlist = [image.description for image in images]
 
-        # 使用TF-IDF对描述进行向量化
-        vectorizer = TfidfVectorizer()
-        tfidf_matrix = vectorizer.fit_transform(descriptionlist + [description])
+        print(descriptionlist)
 
-        # 计算每个图片描述与输入描述的余弦相似度
-        similarity_scores = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1])
+        similarityList = []
+        for sentence in descriptionlist:
+            similarity = cos_similarity(sentence, description)
+            similarityList.append(similarity)
+
+        similarity_scores = [similarityList]
+
+        print(similarity_scores)
 
         # 将相似度与图片关联
         image_similarity_pairs = [
@@ -132,4 +147,68 @@ class SelectImagesByDescription(APIView):
             for image, _ in filtered_images
         ]
 
-        return JsonResponse({"state": "success", "images": result})
+        idList = [item["image_id"] for item in result]
+        urlList = [item["image_url"] for item in result]
+
+        return JsonResponse(
+            {"state": "success", "image_id": idList, "image_url": urlList}
+        )
+
+
+class SelectImages(APIView):
+    def post(self, request, *args, **kwargs):
+        userid = request.data.get("user_id")
+        time = request.data.get("time")
+        position = request.data.get("position")
+        tags = request.data.get("tags")
+
+        # 获取用户全部照片
+        images = Image.objects.filter(user_id=userid)
+
+        # 按时间筛选
+        if time != "":
+            images = images.filter(time=time)
+
+        # 按地点筛选
+        if position != "":
+            images = images.filter(position=position)
+
+        url1 = set(image.url for image in images)
+        id1 = set(image.id for image in images)
+
+        if len(tags) != 0:
+            # 获取所有符合条件的图片的 URL 和 ID
+            image_ids = ImageTag.objects.filter(tag_name__in=tags).values_list(
+                "image_id", flat=True
+            )
+            images = Image.objects.filter(user_id=userid, id__in=image_ids)
+            urls = set(image.url for image in images)
+            ids = set(image.id for image in images)
+
+            # 计算所有标签的交集
+            for tag_name in tags:
+                tag_image_ids = ImageTag.objects.filter(tag_name=tag_name).values_list(
+                    "image_id", flat=True
+                )
+                tag_image_urls = set(
+                    image.url for image in Image.objects.filter(id__in=tag_image_ids)
+                )
+                tag_image_ids = set(
+                    image.id for image in Image.objects.filter(id__in=tag_image_ids)
+                )
+
+                # 更新交集
+                urls &= tag_image_urls
+                ids &= tag_image_ids
+
+            # 将结果转换为列表
+            urlList = list(urls & url1)
+            idList = list(ids & id1)
+
+        else:
+            urlList = list(url1)
+            idList = list(id1)
+
+        return JsonResponse(
+            {"state": "success", "image_id": idList, "image_url": urlList}
+        )
