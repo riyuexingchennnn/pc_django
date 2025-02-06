@@ -410,9 +410,10 @@ class ChangeInfoView(APIView):
             new_avatar = request.FILES.get("avatar")
 
             new_avatar.seek(0)  # 移动文件指针到开头
-            file_extension = new_avatar.name.split(".")[-1]  # 获取文件扩展名
+            # file_extension = new_avatar.name.split(".")[-1]  # 获取文件扩展名
 
-            avatar_filename = f"{user_id}.{file_extension}"  # 使用用户ID命名头像文件，可以根据需求调整文件扩展名
+            # avatar_filename = f"{user_id}.{file_extension}"  # 使用用户ID命名头像文件，可以根据需求调整文件扩展名
+            avatar_filename = f"{user_id}.jpg"  # 使用jpg命名，图像体积小
 
             # 保存到 media/avatar 目录下
             avatar_path = os.path.join(settings.MEDIA_ROOT, "avatar", avatar_filename)

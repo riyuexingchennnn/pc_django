@@ -29,8 +29,9 @@ ALLOWED_HOSTS = [
     "rcsvnfd47bsc.ngrok.xiaomiqiu123.top",  # 你的外部域名
     "http://rcsvnfd47bsc.ngrok.xiaomiqiu123.top",  # 如果是 HTTP 协议也需要添加
     "https://rcsvnfd47bsc.ngrok.xiaomiqiu123.top",
-    "127.0.0.1",  # 本地地址
     "localhost",  # 本地地址
+    "127.0.0.1",  # 本地地址
+    "192.168.134.35", # 局域网地址
 ]
 
 
@@ -100,7 +101,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "piccloud",  # 这里是你创建的数据库名
         "USER": "root",  # 这里是你创建的数据库用户名
-        "PASSWORD": "123",  # 这里是你设置的密码
+        "PASSWORD": "1234",  # 这里是你设置的密码，windows上必须4位，呜呜呜
         "HOST": "localhost",
         "PORT": "3306",  # 默认端口
     }

@@ -57,7 +57,9 @@
 
 环境具体部署参照[pc_docker仓库](http://vlab.csu.edu.cn/gitlab/piccloud/pc_docker)
 
-### 3. phpMyAdmin
+### 3. 数据库可视化工具
+
+#### 3.1 phpMyAdmin
 
 基于web和php的数据库管理工具，可以方便地管理mysql数据库。
 
@@ -84,6 +86,14 @@ sudo systemctl restart apache2
 然后登录本地phpMyAdmin：http://localhost:8080/phpmyadmin
 
 ![](./docs/phpmyAdmin.png)
+
+#### 3.2 DBeaver
+
+基于Java的数据库管理工具，可以方便地管理mysql数据库。
+
+官网下载安装包：https://dbeaver.io/download/
+
+![](./docs/DBeaver.png)
 
 ### 4. 配置宝塔面板(可配可不配)
 
@@ -245,6 +255,15 @@ python3 manage.py migrate
 
 因为使用的是mySQL，所以不会像sqlite3那样自动生成db文件。
 
+如果出现了，数据库中某个表找不到，字段找不到等问题，可以删除有问题的migrations文件夹，然后重新运行上面的命令。
+
+如果发现没有产生migrations文夹，可以单个为某个Django应用创建migrations：
+
+```
+python3 manage.py makemigrations accounts
+python3 manage.py migrate
+```
+
 ### 3. 项目整体运行
 
 ```
@@ -311,3 +330,8 @@ docker run -p 9000:9000 -p 9001:9001 \
 ![](./docs/COS.png)
 
 不用担心带宽问题，测试4MB图片也能在一秒钟内快速下载。
+
+如果不使用docker环境，可以直接安装cos-python-sdk-v5。
+```
+pip install -U cos-python-sdk-v5
+```

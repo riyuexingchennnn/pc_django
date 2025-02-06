@@ -4,6 +4,7 @@ djangorestframework # 用于构建RESTful API
 Pillow 
 django-cors-headers # 用于解决跨域问题
 drf-yasg # 用于构建Swagger文档
+alipay-sdk-python
 # ------------------------------------
 
 # ---------------- ai ----------------
@@ -14,8 +15,7 @@ openai
 mysqlclient
 PyMySQL
 PyJWT  # 注意不是jwt
-smtplib
-ssl
+# ssl
 # ------------------------------------
 
 # -------------  代码风格检查工具 -----------
