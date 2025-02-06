@@ -46,6 +46,7 @@ from apps.search.views import (
     SelectImagesByPosition,
     SelectImagesByTags,
     SelectImagesByDescription,
+    SelectImages,
 )
 
 urlpatterns = [
@@ -108,5 +109,6 @@ urlpatterns = [
         SelectImagesByDescription.as_view(),
         name="search_images_description",
     ),
+    path("search/image", SelectImages.as_view(), name="search_image"),
     # -----------------------------------------------------------------------------
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
