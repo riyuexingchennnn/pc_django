@@ -2,3 +2,8 @@ __pycache__/
 log/
 .idea/
 .vscode/
+
+# 忽略 media/avatar 目录下的所有文件
+media/avatar/*
+# 但不忽略 default.png
+!media/avatar/default.png

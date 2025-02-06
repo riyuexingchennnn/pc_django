@@ -2,9 +2,12 @@ import re, logging, random, string, jwt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.conf import settings
+import os
 from apps.accounts.models import User, VerificationCode
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
+from django.core.files.storage import default_storage
 from django.core.cache import cache
 
 from apps.utils.email_util import send_mail
@@ -75,9 +78,7 @@ class LoginView(APIView):
         if User.objects.filter(email=email).exists():
             user = User.objects.get(email=email)
         if user is None:
-            return Response(
-                {"message": "用户不存在"}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"message": "用户不存在"}, status=status.HTTP_404_NOT_FOUND)
         if user.check_password(password):
             # access_token生成
             expiration_time = timezone.now() + timezone.timedelta(minutes=15)
@@ -397,15 +398,36 @@ class ChangeInfoView(APIView):
                 return Response(
                     {"message": "密码不正确"}, status=status.HTTP_400_BAD_REQUEST
                 )
+            
         # 修改用户名
-        if request.data.get("new_username"):
-            new_username = request.data.get("new_username")
+        if request.data.get("username"):
+            new_username = request.data.get("username")
             user.username = new_username
             user.save()
+            
         # 修改用户头像
-        if request.data.get("avatar"):
-            new_avatar = request.data.get("new_avatar")
-            user.avatar = new_avatar
+        if request.FILES.get("avatar"):
+            new_avatar = request.FILES.get("avatar")
+
+            new_avatar.seek(0)  # 移动文件指针到开头
+            file_extension = new_avatar.name.split(".")[-1]  # 获取文件扩展名
+
+            avatar_filename = f"{user_id}.{file_extension}"  # 使用用户ID命名头像文件，可以根据需求调整文件扩展名
+
+            # 保存到 media/avatar 目录下
+            avatar_path = os.path.join(settings.MEDIA_ROOT, "avatar", avatar_filename)
+
+            # 确保目录存在
+            if not os.path.exists(os.path.dirname(avatar_path)):
+                os.makedirs(os.path.dirname(avatar_path))
+
+            # 保存文件
+            with default_storage.open(avatar_path, "wb+") as destination:
+                for chunk in new_avatar.chunks():
+                    destination.write(chunk)
+
+            # 更新用户的头像路径
+            user.avatar = os.path.join("avatar", avatar_filename)  # 存储相对路径
             user.save()
         # 返回修改成功的信息
         return Response({"message": "修改信息成功"}, status=status.HTTP_200_OK)

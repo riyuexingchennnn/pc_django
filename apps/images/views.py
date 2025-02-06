@@ -34,36 +34,36 @@ logger = logging.getLogger("django")
 # 如果是普通会员，没有图像描述功能，上传时间大约为10秒
 class UploadImageView(APIView):
     def post(self, request, *args, **kwargs):
+        
+        token = request.META.get("HTTP_AUTHORIZATION")
+        if not token:
+            return Response(
+                {"message": "token未提供"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        payload = parse_token(token)
+        if not payload:
+            return Response(
+                {"message": "token无效"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        user_id = payload.get("user_id")
+
         # 获取文件和表单字段
         image_file = request.FILES.get("image")  # 获取图片文件(这个只能一张图片)
-        user_id = request.data.get("user_id")  # 获取用户ID
         time = request.data.get("time") or None  # 获取拍摄时间
         category = request.data.get("category") or "未分类"  # 获取分组
         position = request.data.get("position") or None  # 获取位置
         folder_url = request.data.get("folder_url") or "root/"  # 获取文件夹
-        token = request.data.get("token")  # 获取token
-
+        
         # 验证必填字段，图片文件
-        if not image_file or not token or not user_id:
+        if not image_file:
             return Response(
-                {"success": False, "message": "Image file and token is required"},
+                {"success": False, "message": "没有图片文件"},
                 status=status.HTTP_400_BAD_REQUEST,
             )  # 返回400错误，表示请求错误
 
-        # 解析token
-        payload = parse_token(token)
-        if not payload:
-            return Response(
-                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        payload_user_id = payload.get("user_id")
+        
         # print(type(payload_user_id))  # 输出 payload_user_id 的类型      int
         # print(type(user_id))  # 输出 user_id 的类型                      str
-        # 验证token中的用户ID和请求中的用户ID是否一致
-        if payload_user_id != int(user_id):
-            return Response(
-                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
-            )
 
         # 首先检查用户存储空间是否足够
         user = User.objects.get(id=user_id)
@@ -74,7 +74,7 @@ class UploadImageView(APIView):
             return Response(
                 {
                     "success": False,
-                    "message": "User storage space is full. Upgrade to premium membership to upload more.",
+                    "message": "用户存储空间不足，请升级会员获取更多空间",
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )  # 返回400错误，表示请求错误
@@ -85,7 +85,7 @@ class UploadImageView(APIView):
             return Response(
                 {
                     "success": False,
-                    "message": "User storage space is full. Upgrade to premium membership to upload more.",
+                    "message": "用户存储空间不足，请升级会员获取更多空间",
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )  # 返回400错误，表示请求错误
@@ -94,7 +94,7 @@ class UploadImageView(APIView):
             and user.used_space + image_file.size / 1024.0 / 1024.0 > 1024.0 * 10
         ):
             return Response(
-                {"success": False, "message": "User storage space is full."},
+                {"success": False, "message": "用户存储空间不足"},
                 status=status.HTTP_400_BAD_REQUEST,
             )  # 返回400错误，表示请求错误
 
@@ -245,30 +245,29 @@ class UploadImageView(APIView):
 # 删除图片视图
 class DeleteImageView(APIView):
     def post(self, request, *args, **kwargs):
-        # 获取图片ID
-        image_id = request.data.get("image_id")
-        user_id = request.data.get("user_id")
-        user = User.objects.get(id=user_id)
-        token = request.data.get("token")
 
-        # 验证必填字段
-        if not image_id or not user_id or not token:
+        token = request.META.get("HTTP_AUTHORIZATION")
+        if not token:
             return Response(
-                {"success": False, "message": "Image id and user_id is required"},
-                status=status.HTTP_400_BAD_REQUEST,  # 返回400错误，表示请求错误
+                {"message": "token未提供"}, status=status.HTTP_400_BAD_REQUEST
             )
-
-        # 解析token
         payload = parse_token(token)
         if not payload:
             return Response(
-                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+                {"message": "token无效"}, status=status.HTTP_400_BAD_REQUEST
             )
-        payload_user_id = payload.get("user_id")
-        # 验证token中的用户ID和请求中的用户ID是否一致
-        if payload_user_id != user_id:
+        user_id = payload.get("user_id")
+    
+        # 获取图片ID
+        image_id = request.data.get("image_id")
+
+        user = User.objects.get(id=user_id)
+
+        # 验证必填字段
+        if not image_id:
             return Response(
-                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+                {"success": False, "message": "缺少image_id参数"},
+                status=status.HTTP_400_BAD_REQUEST,  # 返回400错误，表示请求错误
             )
 
         try:
@@ -305,34 +304,32 @@ class DeleteImageView(APIView):
 # 修改图片视图
 class UpdateImageView(APIView):
     def post(self, request, *args, **kwargs):
-        # 获取图片ID
+
+        token = request.META.get("HTTP_AUTHORIZATION")
+        if not token:
+            return Response(
+                {"message": "token未提供"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        payload = parse_token(token)
+        if not payload:
+            return Response(
+                {"message": "token无效"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        user_id = payload.get("user_id")
+    
+        # 获取图片ID（如果为空就是None，但是不会报错）
         image_id = request.data.get("image_id")
-        user_id = request.data.get("user_id")
         name = request.data.get("name")
-        description = request.data.get("description")
+        description = request.data.get("description") 
         category = request.data.get("category")
         position = request.data.get("position")
         time = request.data.get("time")
         tags = request.data.get("tags")
         folder_url = request.data.get("folder_url")
-        token = request.data.get("token")
 
-        # 解析token
-        payload = parse_token(token)
-        if not payload:
+        if not image_id:
             return Response(
-                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        payload_user_id = payload.get("user_id")
-        # 验证token中的用户ID和请求中的用户ID是否一致
-        if payload_user_id != user_id:
-            return Response(
-                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        if not image_id or not token:
-            return Response(
-                {"success": False, "message": "Image id is required"},
+                {"success": False, "message": "缺少image_id参数"},
                 status=status.HTTP_400_BAD_REQUEST,  # 返回400错误，表示请求错误
             )
         try:
@@ -377,29 +374,19 @@ class UpdateImageView(APIView):
 # 下载图片视图
 class DownloadImageView(APIView):
     def post(self, request, *args, **kwargs):
-        # 获取用户ID
-        user_id = request.data.get("user_id")
-        token = request.data.get("token")
 
-        # 解析token
+        token = request.META.get("HTTP_AUTHORIZATION")
+        if not token:
+            return Response(
+                {"message": "token未提供"}, status=status.HTTP_400_BAD_REQUEST
+            )
         payload = parse_token(token)
         if not payload:
             return Response(
-                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+                {"message": "token无效"}, status=status.HTTP_400_BAD_REQUEST
             )
-        payload_user_id = payload.get("user_id")
-        # 验证token中的用户ID和请求中的用户ID是否一致
-        if payload_user_id != user_id:
-            return Response(
-                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
-            )
+        user_id = payload.get("user_id")
 
-        # 验证必填字段
-        if not user_id or not token:
-            return Response(
-                {"success": False, "message": "User id is required"},
-                status=status.HTTP_400_BAD_REQUEST,  # 返回400错误，表示请求错误
-            )
 
         try:
             # 查找数据库中的图片记录

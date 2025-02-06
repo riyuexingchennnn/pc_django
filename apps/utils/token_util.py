@@ -4,6 +4,7 @@ import logging
 
 logger = logging.getLogger("django")
 
+
 # token验证，已经完成测试, 为了其他模块复用，单独提出来
 def parse_token(token):
     # 检查是否在黑名单缓存中（用来实现登出功能）

@@ -17,7 +17,7 @@ client = CosS3Client(config)
 def upload_image_cos(image_id, image_file):
     # 设置COS上传对象的键名（使用UUID作为文件名）
     file_extension = image_file.name.split(".")[-1]  # 获取文件扩展名
-    print(file_extension)
+    # print(file_extension)
     object_key = f"images/{image_id}.{file_extension}"
     response = client.upload_file_from_buffer(
         Bucket=bucket_name,
