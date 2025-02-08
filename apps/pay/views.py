@@ -1,4 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+
+import requests
 from rest_framework.views import APIView
 from alipay.aop.api.AlipayClientConfig import AlipayClientConfig
 from alipay.aop.api.DefaultAlipayClient import DefaultAlipayClient
@@ -10,7 +12,7 @@ from django.http import JsonResponse
 from django.http import HttpResponse
 import uuid
 import logging
-from apps.pay.models import consumptionHistory
+from apps.pay.models import ConsumptionHistory, ContinueTime
 
 logger = logging.getLogger("django")
 
@@ -30,32 +32,39 @@ class AlipayView(APIView):
         client = DefaultAlipayClient(alipay_client_config)
 
         user_id = request.data.get("user_id")
-        # 获取套餐
         pattern = request.data.get("pattern")
+        device = request.data.get("device")
 
-        print("1111111111111111111111111111111111111111111111111111111111111111111111")
-        # pattern = '1'
         uuid1 = uuid.uuid1()
-        out_trade_no = str(uuid1)
+        out_trade_no = str(uuid1).replace("-", "")
 
         try:
             if pattern == "1":
                 # 获取订单信息
-                subject = "白银会员"
+                subject = "银牌会员"
                 total_amount = "10.00"
             else:
                 # 获取订单信息
-                subject = "黄金会员"
+                subject = "金牌会员"
                 total_amount = "20.00"
+
+            # record = ContinueTime.objects.get(user_id=user_id)
+            # if record.type != subject:
+            #     return (
+            #         JsonResponse(
+            #             {
+            #                 "state": "failed",
+            #                 "message": "会员等级不同，等到之前的会员过期再充值",
+            #             }
+            #         ),
+            #         404,
+            #     )
+
             # 构造支付请求模型
             model = AlipayTradePagePayModel()
             model.out_trade_no = out_trade_no
             model.total_amount = total_amount
             model.subject = subject
-
-            # 获取设备
-            device = request.data.get("device")
-            print("22222222222222222222222222222222222222222222222222222222222222222")
 
             if device == "phone":
                 model.product_code = "QUICK_WAP_WAY"
@@ -72,23 +81,18 @@ class AlipayView(APIView):
             request_data.notify_url = (
                 "http://localhost:8000/pay/alipay/notify"  # 异步通知地址
             )
-            print(
-                "33333333333333333333333333333333333333333333333333333333333333333333333"
+
+            ConsumptionHistory.objects.create(
+                trade_no=out_trade_no,
+                user_id_id=int(user_id),
+                trade_spent=float(total_amount),
+                is_success=False,
+                trade_description=subject,
             )
-            # consumptionHistory.objects.create(
-            #     trade_no=out_trade_no.split("-"),
-            #     user_id=int(user_id),
-            #     is_success=False,
-            #     trade_description=subject,
-            # )
-            print(
-                "444444444444444444444444444444444444444444444444444444444444444444444"
-            )
+
             # 调用支付宝接口
             response_content = client.page_execute(request_data, http_method="GET")
-            print(
-                "55555555555555555555555555555555555555555555555555555555555555555555555555"
-            )
+
             return JsonResponse(
                 {"payment_url": response_content, "trade_no": out_trade_no}
             )
@@ -102,9 +106,30 @@ class AlipayView(APIView):
     # 支付宝返回函数
     def get(self, request, *args, **kwargs):
         # 向数据库中保存相关数据
-        # trade_on = request.GET.get("out_trade_no")
-        # history = consumptionHistory.objects.get(trade_no=trade_on)
-        # history.is_success = True
+        trade_on = request.GET.get("out_trade_no")
+
+        history = ConsumptionHistory.objects.get(trade_no=trade_on)
+        history.is_success = True
+        user_id = history.user_id_id
+        type = history.trade_description
+        deadline = history.trade_time + timedelta(days=30)
+        history.save()
+
+        ContinueTime.objects.create(
+            user_id=user_id,
+            type=type,
+            deadline=deadline,
+        )
+
+        url = "http:localhost:8000"
+        data = {
+            "message": "支付成功",
+        }
+        requests.post(
+            url,
+            json=data,
+            headers={"Content-Type": "application/json"},
+        )
 
         method = request.method
         return HttpResponse(method + "支付成功")
