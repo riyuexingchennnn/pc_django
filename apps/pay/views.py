@@ -60,14 +60,14 @@ class AlipayView(APIView):
             model.subject = subject
 
             # 获取设备
-            divice = request.data.get("divice")
+            device = request.data.get("device")
 
-            if divice == "phone":
+            if device == "phone":
                 model.product_code = "QUICK_WAP_WAY"
             else:
                 model.product_code = "FAST_INSTANT_TRADE_PAY"
             # 创建支付请求
-            if divice == "phone":
+            if device == "phone":
                 request_data = AlipayTradeWapPayRequest(biz_model=model)
             else:
                 request_data = AlipayTradePagePayRequest(biz_model=model)

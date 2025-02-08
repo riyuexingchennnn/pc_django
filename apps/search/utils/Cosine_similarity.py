@@ -2,10 +2,6 @@ import jieba
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# 准备两句话
-# sentence1 = '雪地上站着一名女孩'
-# sentence2 = '一个女孩站在雪地上'
-
 
 # 数据清洗
 def preprocess(text):
