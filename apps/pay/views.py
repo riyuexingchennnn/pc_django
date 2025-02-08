@@ -102,7 +102,7 @@ class AlipayView(APIView):
     # 支付宝返回函数
     def get(self, request, *args, **kwargs):
         # 向数据库中保存相关数据
-        trade_on = request.GET.get("out_trade_no")
+        # trade_on = request.GET.get("out_trade_no")
         # history = consumptionHistory.objects.get(trade_no=trade_on)
         # history.is_success = True
 
