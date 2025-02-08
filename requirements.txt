@@ -1,20 +1,21 @@
 # ------------ Django ----------------
-django 
-djangorestframework # 用于构建RESTful API
-Pillow 
+django~=5.1.4
+djangorestframework~=3.15.2
+Pillow~=11.1.0
 django-cors-headers # 用于解决跨域问题
 drf-yasg # 用于构建Swagger文档
 alipay-sdk-python
+requests~=2.32.3
 # ------------------------------------
 
 # ---------------- ai ----------------
-openai
+openai~=1.59.8
 # ------------------------------------
 
 # -------------- 数据库 ---------------
 mysqlclient
-PyMySQL
-PyJWT  # 注意不是jwt
+PyMySQL~=1.1.1
+PyJWT~=2.10.1
 # ssl
 # ------------------------------------
 
@@ -25,7 +26,7 @@ flake8-docstrings
 # ----------------------------------------
 
 # ------------ 文字相关搜索 ----------------
-jieba
-scikit-learn
+jieba~=0.42.1
+scikit-learn~=1.6.1
 # ----------------------------------------
 

@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework.views import APIView
 from alipay.aop.api.AlipayClientConfig import AlipayClientConfig
 from alipay.aop.api.DefaultAlipayClient import DefaultAlipayClient
@@ -9,14 +10,9 @@ from django.http import JsonResponse
 from django.http import HttpResponse
 import uuid
 import logging
+from apps.pay.models import consumptionHistory
 
 logger = logging.getLogger("django")
-
-
-# def choosePatten(request):
-#     # 进入支付选择页面
-#
-#     pass
 
 
 class AlipayView(APIView):
@@ -33,25 +29,23 @@ class AlipayView(APIView):
 
         client = DefaultAlipayClient(alipay_client_config)
 
+        user_id = request.data.get("user_id")
         # 获取套餐
         pattern = request.data.get("pattern")
 
+        print("1111111111111111111111111111111111111111111111111111111111111111111111")
         # pattern = '1'
         uuid1 = uuid.uuid1()
         out_trade_no = str(uuid1)
 
-        # print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-        # print(uuid1)
-        # print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-
         try:
             if pattern == "1":
                 # 获取订单信息
-                subject = "套餐1"
+                subject = "白银会员"
                 total_amount = "10.00"
             else:
                 # 获取订单信息
-                subject = "套餐2"
+                subject = "黄金会员"
                 total_amount = "20.00"
             # 构造支付请求模型
             model = AlipayTradePagePayModel()
@@ -61,6 +55,7 @@ class AlipayView(APIView):
 
             # 获取设备
             device = request.data.get("device")
+            print("22222222222222222222222222222222222222222222222222222222222222222")
 
             if device == "phone":
                 model.product_code = "QUICK_WAP_WAY"
@@ -77,9 +72,23 @@ class AlipayView(APIView):
             request_data.notify_url = (
                 "http://localhost:8000/pay/alipay/notify"  # 异步通知地址
             )
-
+            print(
+                "33333333333333333333333333333333333333333333333333333333333333333333333"
+            )
+            # consumptionHistory.objects.create(
+            #     trade_no=out_trade_no.split("-"),
+            #     user_id=int(user_id),
+            #     is_success=False,
+            #     trade_description=subject,
+            # )
+            print(
+                "444444444444444444444444444444444444444444444444444444444444444444444"
+            )
             # 调用支付宝接口
             response_content = client.page_execute(request_data, http_method="GET")
+            print(
+                "55555555555555555555555555555555555555555555555555555555555555555555555555"
+            )
             return JsonResponse(
                 {"payment_url": response_content, "trade_no": out_trade_no}
             )
@@ -93,13 +102,9 @@ class AlipayView(APIView):
     # 支付宝返回函数
     def get(self, request, *args, **kwargs):
         # 向数据库中保存相关数据
+        trade_on = request.GET.get("out_trade_no")
+        # history = consumptionHistory.objects.get(trade_no=trade_on)
+        # history.is_success = True
 
-        # print('..............................................')
-        # print(request.GET.get('out_trade_no'))
-        # print('..............................................')
         method = request.method
         return HttpResponse(method + "支付成功")
-
-
-# def alipay_notify(request):
-#     return HttpResponse("异步通知接收成功")

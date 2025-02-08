@@ -1,10 +1,10 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
-from apps.images.models import Image, ImageTag
 from apps.search.utils.Select_time import select_by_time
 from apps.search.utils.Select_tag import select_by_tags
 from apps.search.utils.Select_description import select_by_description
 from apps.search.utils.Select_userid import select_by_userid
+from apps.search.utils.Select_position import select_by_position
 
 # Create your views here.
 
@@ -32,13 +32,12 @@ class SelectImagesByTime(APIView):
 class SelectImagesByPosition(APIView):
     # 按地点搜索
     def post(self, request, *args, **kwargs):
-        userid = request.data.get("user_id")
-        selectPosition = request.data.get("position")
+        user_id = request.data.get("user_id")
+        position = request.data.get("position")
 
-        # 按地点搜索
-        images = Image.objects.filter(user_id=userid, position=selectPosition)
-        images_url = [image.url for image in images]
-        images_id = [image.id for image in images]
+        images_id, images_url, _ = select_by_position(
+            select_by_userid(user_id=user_id), position=position
+        )
         return JsonResponse(
             {
                 "state": "success",
@@ -100,7 +99,7 @@ class SelectImagesByTPTD(APIView):
 
         # 按地点筛选
         if position != "":
-            _, _, images = images.filter(position=position)
+            _, _, images = select_by_position(image_list=images, position=position)
 
         url1 = set(image.url for image in images)
         id1 = set(image.id for image in images)
@@ -110,8 +109,8 @@ class SelectImagesByTPTD(APIView):
             urls, ids, _ = select_by_tags(
                 select_by_userid(user_id=user_id), tags_list=tags_list
             )
-            urlList = list(set(urls) & url1)
-            idList = list(set(ids) & id1)
+            urlList = list(set(urls) & set(url1))
+            idList = list(set(ids) & set(id1))
 
         else:
             urlList = list(url1)
