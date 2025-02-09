@@ -5,20 +5,9 @@ from apps.accounts.models import User
 
 
 # Create your models here.
-class BaseModel(models.Model):
-    """
-    基类
-    """
-
-    class Meta:
-        abstract = True
-        ordering = ["-created_time"]
-
-    def __str__(self):
-        raise NotImplementedError
 
 
-class ConsumptionHistory(BaseModel):
+class ConsumptionHistory(models.Model):
     """
     消费（充值）记录
     """
@@ -33,10 +22,10 @@ class ConsumptionHistory(BaseModel):
     trade_description = CharField(max_length=4, null=True, help_text="套餐类型")
 
     class Meta:
-        db_table = "ConsumptionHistory"
+        db_table = "consumption_history"
 
 
-class ContinueTime(BaseModel):
+class ContinueTime(models.Model):
     """
     会员持续时间
     """
@@ -44,8 +33,8 @@ class ContinueTime(BaseModel):
     user = ForeignKey(
         to=User, to_field="id", on_delete=models.CASCADE, help_text="用户id"
     )
-    type = CharField(max_length=4, null=True, help_text="套餐类型")
-    deadline = DateTimeField(help_text="到期时间")
+    type = CharField(max_length=4, help_text="会员类型")
+    deadline = DateTimeField(help_text="会员截止时间")
 
     class Meta:
-        db_table = "ContinueTime"
+        db_table = "continue_time"

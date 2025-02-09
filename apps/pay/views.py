@@ -1,6 +1,5 @@
-from datetime import datetime, timedelta
-
-import requests
+from datetime import timedelta
+from django.contrib.sites import requests
 from rest_framework.views import APIView
 from alipay.aop.api.AlipayClientConfig import AlipayClientConfig
 from alipay.aop.api.DefaultAlipayClient import DefaultAlipayClient
@@ -12,7 +11,9 @@ from django.http import JsonResponse
 from django.http import HttpResponse
 import uuid
 import logging
+import requests
 from apps.pay.models import ConsumptionHistory, ContinueTime
+from apps.pay.utils.User_exist import user_is_exist
 
 logger = logging.getLogger("django")
 
@@ -33,8 +34,13 @@ class AlipayView(APIView):
 
         user_id = request.data.get("user_id")
         pattern = request.data.get("pattern")
-        device = request.data.get("device")
-
+        print("111111111111111111111111111111111111111111111111111111111111111")
+        if not user_is_exist(user_id):
+            return JsonResponse(
+                {"state": "Failed", "message": "未找到该用户"},
+                status=400,
+            )
+        print("222222222222222222222222222222222222222222222222222222222222222")
         uuid1 = uuid.uuid1()
         out_trade_no = str(uuid1).replace("-", "")
 
@@ -48,23 +54,26 @@ class AlipayView(APIView):
                 subject = "金牌会员"
                 total_amount = "20.00"
 
-            # record = ContinueTime.objects.get(user_id=user_id)
-            # if record.type != subject:
-            #     return (
-            #         JsonResponse(
-            #             {
-            #                 "state": "failed",
-            #                 "message": "会员等级不同，等到之前的会员过期再充值",
-            #             }
-            #         ),
-            #         404,
-            #     )
+            item = ContinueTime.objects.filter(user_id=user_id).first()
+            print("4444444444444444444444444444444444444444444444444444444")
+            if item is not None and item.type != subject:
+                print("555555555555555555555555555555555555555555")
+                return JsonResponse(
+                    {
+                        "state": "failed",
+                        "message": "会员等级不同，等到之前的会员过期再充值",
+                    },
+                    status=401,
+                )
 
             # 构造支付请求模型
             model = AlipayTradePagePayModel()
             model.out_trade_no = out_trade_no
             model.total_amount = total_amount
             model.subject = subject
+
+            # 获取设备
+            device = request.data.get("device")
 
             if device == "phone":
                 model.product_code = "QUICK_WAP_WAY"
@@ -110,26 +119,27 @@ class AlipayView(APIView):
 
         history = ConsumptionHistory.objects.get(trade_no=trade_on)
         history.is_success = True
-        user_id = history.user_id_id
-        type = history.trade_description
-        deadline = history.trade_time + timedelta(days=30)
         history.save()
+        user_id = history.user_id_id
+        pattern = history.trade_description
+        deadline = history.trade_time + timedelta(days=30)
 
         ContinueTime.objects.create(
             user_id=user_id,
-            type=type,
+            type=pattern,
             deadline=deadline,
         )
 
-        url = "http:localhost:8000"
-        data = {
-            "message": "支付成功",
-        }
-        requests.post(
-            url,
-            json=data,
-            headers={"Content-Type": "application/json"},
-        )
+        # url = "http:localhost:8000"
+        # data = {
+        #     "message": "支付成功",
+        # }
+        #
+        # requests.post(
+        #     url,
+        #     json=data,
+        #     headers={"Content-Type": "application/json"},
+        # )
 
         method = request.method
         return HttpResponse(method + "支付成功")
