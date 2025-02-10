@@ -15,7 +15,36 @@ from apps.utils.token_util import parse_token
 
 logger = logging.getLogger("django")
 
-
+def create_code_and_send(email):
+    # 生成验证码并保存
+    verificationCode = VerificationCode()
+    code = verificationCode.create_code(email)
+    # 发送验证码到邮箱
+    send_mail(
+        recipient_list=[email],
+        subject="影云验证码",
+        body=f"""
+        <html>
+        <body>
+            <p>尊敬的影云用户 {email}，您好！</p>
+            
+            <p>您的验证码如下：</p>
+            
+            <div style="font-size: 24px; font-weight: bold; color: #4CAF50;">
+                {code}
+            </div>
+            
+            <p>为确保账户安全，验证码将在 5 分钟后过期，请及时使用。</p>
+            
+            <p>如果您没有请求此验证码，请忽略此邮件。</p>
+            
+            <p>祝您使用愉快！</p>
+            
+            <p>影云团队</p>
+        </body>
+        </html>
+        """,
+    )
 # 检查会话是否过期
 class VerifyTokenView(APIView):
     def post(self, request):
@@ -179,36 +208,7 @@ class SendCodeView(APIView):
                 {"status": "error", "message": "邮箱已被注册"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        # 生成验证码并保存
-        verificationCode = VerificationCode()
-        code = verificationCode.create_code(email)
-        # 发送验证码到邮箱
-        send_mail(
-            recipient_list=[email],
-            subject="影云验证码",
-            body=f"""
-            <html>
-            <body>
-                <p>尊敬的影云用户 {email}，您好！</p>
-                
-                <p>您的验证码如下：</p>
-                
-                <div style="font-size: 24px; font-weight: bold; color: #4CAF50;">
-                    {code}
-                </div>
-                
-                <p>为确保账户安全，验证码将在 5 分钟后过期，请及时使用。</p>
-                
-                <p>如果您没有请求此验证码，请忽略此邮件。</p>
-                
-                <p>祝您使用愉快！</p>
-                
-                <p>影云团队</p>
-            </body>
-            </html>
-            """,
-        )
-
+        create_code_and_send(email)
         # 返回发送成功的信息和验证码
         return Response(
             {"status": "success", "message": "验证码发送成功"},
@@ -248,8 +248,6 @@ class UserInfoView(APIView):
             },
             status=status.HTTP_200_OK,
         )
-
-
 # 登出
 class LoginOutView(APIView):
     def post(self, request):
@@ -328,36 +326,7 @@ class ForgetPasswordView(APIView):
                 {"message": "请60秒后再试"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        # 生成验证码并保存
-        verificationCode = VerificationCode()
-        code = verificationCode.create_code(email)
-        # 发送验证码到邮箱
-        send_mail(
-            recipient_list=[email],
-            subject="影云验证码",
-            body=f"""
-            <html>
-            <body>
-                <p>尊敬的影云用户 {email}，您好！</p>
-                
-                <p>您的验证码如下：</p>
-                
-                <div style="font-size: 24px; font-weight: bold; color: #4CAF50;">
-                    {code}
-                </div>
-                
-                <p>为确保账户安全，验证码将在 5 分钟后过期，请及时使用。</p>
-                
-                <p>如果您没有请求此验证码，请忽略此邮件。</p>
-                
-                <p>祝您使用愉快！</p>
-                
-                <p>影云团队</p>
-            </body>
-            </html>
-            """,
-        )
-
+        create_code_and_send(email)
         # 返回发送成功的信息和验证码
         return Response(
             {"status": "success", "message": "验证码发送成功"},

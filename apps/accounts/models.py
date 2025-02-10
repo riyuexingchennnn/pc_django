@@ -79,7 +79,7 @@ class VerificationCode(models.Model):
     email = models.EmailField(unique=True, verbose_name="邮箱")
     code = models.CharField(max_length=6, verbose_name="验证码")
     time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
-
+    
     class Meta:
         db_table = "verification_code"
         verbose_name = "验证码"
