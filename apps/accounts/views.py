@@ -16,7 +16,7 @@ from apps.utils.token_util import parse_token
 logger = logging.getLogger("django")
 
 
-# 检查会话是否过期,待测试
+# 检查会话是否过期
 class VerifyTokenView(APIView):
     def post(self, request):
         token = request.META.get("HTTP_AUTHORIZATION")
@@ -39,7 +39,7 @@ class VerifyTokenView(APIView):
         )
 
 
-# 刷新access_token,待测试
+# 刷新access_token
 class RefreshTokenView(APIView):
     def post(self, request):
         refresh_token = request.META.get("HTTP_AUTHORIZATION")
@@ -67,7 +67,7 @@ class RefreshTokenView(APIView):
         )
 
 
-# 登录，已完成测试
+# 登录
 class LoginView(APIView):
     def post(self, request):
         email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
@@ -110,7 +110,7 @@ class LoginView(APIView):
             )
 
 
-# 使用验证码注册，已完成测试
+# 使用验证码注册
 class RegisterView(APIView):
     def post(self, request):
         username = request.data.get("username")
@@ -163,7 +163,7 @@ class RegisterView(APIView):
         )
 
 
-# 发送注册验证码 ，已完成测试
+# 发送注册验证码
 class SendCodeView(APIView):
     def post(self, request):
         email = request.data.get("email")
@@ -216,7 +216,7 @@ class SendCodeView(APIView):
         )
 
 
-# 获取用户信息,已完成测试，可以通过返回的URL直接访问头像
+# 获取用户信息,可以通过返回的URL直接访问头像
 class UserInfoView(APIView):
     def post(self, request):
         # 验证用户身份
@@ -262,7 +262,7 @@ class LoginOutView(APIView):
         return Response({"message": "成功退出登录"}, status=status.HTTP_200_OK)
 
 
-# 忘记密码,待测试
+# 忘记密码
 class ChangePasswordView(APIView):
     def post(self, request):
         email = request.data.get("email")
@@ -319,6 +319,13 @@ class ForgetPasswordView(APIView):
         if not User.objects.filter(email=email).exists():
             return Response(
                 {"status": "error", "message": "邮箱未被注册"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        #60秒不可重复发送
+        code = VerificationCode.objects.get(email=email)
+        if code is not None and code.is_sleep:
+            return Response(
+                {"message": "请60秒后再试"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         # 生成验证码并保存
@@ -434,7 +441,7 @@ class ChangeInfoView(APIView):
         return Response({"message": "修改信息成功"}, status=status.HTTP_200_OK)
 
 
-# 用户删除,待测试
+# 用户删除
 class DeleteUserView(APIView):
     def post(self, request):
         token = request.META.get("HTTP_AUTHORIZATION")

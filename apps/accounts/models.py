@@ -93,6 +93,9 @@ class VerificationCode(models.Model):
     def is_expired(self):
         # 判断验证码是否过期
         return timezone.now() > self.time + timezone.timedelta(minutes=5)
+    def is_sleep(self):
+        # 判断验证码是否过期
+        return timezone.now() < self.time + timezone.timedelta(minutes=1)
 
     def create_code(self, email):
         if VerificationCode.objects.filter(email=email).exists():
