@@ -33,4 +33,4 @@ def select_by_description(images, description):
     idList = [item["image_id"] for item in result]
     urlList = [item["image_url"] for item in result]
 
-    return idList, urlList, images
+    return idList, urlList, filtered_images

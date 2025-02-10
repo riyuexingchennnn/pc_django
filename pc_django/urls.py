@@ -92,7 +92,7 @@ urlpatterns = [
     # ------------------------------ pay -------------------------------------
     # 支付
     path("pay/alipay", AlipayView.as_view(), name="alipay"),
-    path("pay/alipay", AlipayView.as_view(), name="alipay_success"),
+    # path("pay/alipay", AlipayView.as_view(), name="alipay_success"),
     # path("pay/alipay/notify", alipay_notify)
     # -------------------------------------------------------------------------
     # ------------------------------ search -------------------------------------
