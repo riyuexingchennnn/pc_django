@@ -7,6 +7,7 @@ from apps.search.utils.Select_methods import (
     select_by_tags,
     select_by_description,
 )
+from apps.images.models import ImageTag
 
 # Create your views here.
 
@@ -129,9 +130,16 @@ class SelectImages(APIView):
         message = request.data.get("message")
 
         images = select_by_userid(user_id=user_id)
+        # 判断是否为地点
+        _, _, images = select_by_position(images, position=message)
         if len(images) == 0:
-
-            pass
+            # 判断是否为时间
+            mes = str(message).replace(".", "-")
+            _, _, images = select_by_time(images, time=mes)
+            if len(images) == 0:
+                tags = [
+                    image.tag_name for image in ImageTag.objects.filter(user_id=user_id)
+                ]
 
         ids = [image.id for image in images]
         urls = [image.url for image in images]
