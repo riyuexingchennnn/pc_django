@@ -1,5 +1,4 @@
 from django.http import JsonResponse
-from openai import images
 from rest_framework.views import APIView
 from apps.search.utils.Select_methods import (
     select_by_userid,
@@ -7,6 +6,7 @@ from apps.search.utils.Select_methods import (
     select_by_position,
     select_by_tags,
     select_by_description,
+    select_by_timezone,
 )
 from apps.images.models import ImageTag
 
@@ -89,7 +89,8 @@ class SelectImagesByDescription(APIView):
 class SelectImagesByTPTD(APIView):
     def post(self, request, *args, **kwargs):
         user_id = request.data.get("user_id")
-        time = request.data.get("time")
+        start_time = request.data.get("starttime")
+        end_time = request.data.get("endtime")
         position = request.data.get("position")
         tags_list = request.data.get("tags")
 
@@ -97,9 +98,11 @@ class SelectImagesByTPTD(APIView):
         images = select_by_userid(user_id=user_id)
 
         # 按时间筛选
-        if time != "":
+        if start_time != "" and end_time != "":
             pass
-            _, _, images = select_by_time(images=images, time=time)
+            _, _, images = select_by_timezone(
+                images=images, start_time=start_time, end_time=end_time
+            )
 
         # 按地点筛选
         if position != "":
@@ -160,4 +163,36 @@ class SelectImagesByTimeZone(APIView):
         start_time = request.data.get("starttime")
         end_time = request.data.get("endtime")
 
+        print(start_time, end_time)
+
         images = select_by_userid(user_id=user_id)
+        ids, urls, _ = select_by_timezone(
+            images=images, start_time=start_time, end_time=end_time
+        )
+
+        return JsonResponse(
+            {
+                "state": "success",
+                "ids": ids,
+                "urls": urls,
+            }
+        )
+
+
+class GetTags(APIView):
+    def post(self, request, *args, **kwargs):
+        user_id = request.data.get("user_id")
+        images = select_by_userid(user_id=user_id)
+        image_ids = [image.id for image in images]
+        tagList = []
+        for id in image_ids:
+            imageList = ImageTag.objects.filter(image_id=id)
+            tags = [image.tag_name for image in imageList]
+            tagList.extend(tags)
+
+        tagList = set(tagList)
+
+        # 将集合转换回列表
+        tagList = list(tagList)
+
+        return JsonResponse({"tags": tagList})

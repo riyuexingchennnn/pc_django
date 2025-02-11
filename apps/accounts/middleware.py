@@ -22,6 +22,18 @@ class LoginInterceptorMiddleware:
             "/api/forgot_password",
             "/api/change_password",
             "/qrcode",
+            "/pay/alipay",
+            "/search/image/time",
+            "/search/image/timezone",
+            "/search/image/position",
+            "/search/image/tags",
+            "/search/image/tag",
+            "/search/image/description",
+            "/search/image",
+            "/qrcode",
+            "/qrcode/get",
+            "/qrcode/scan",
+            "/qrcode/login",
         ]
         # 直接放行的页面
         if url in open_urls:

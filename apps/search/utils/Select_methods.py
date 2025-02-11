@@ -46,6 +46,7 @@ def select_by_time(images, time):
 
 def get_datetime(time, pattern):
     global time1
+    print(time)
     num = time.count("-")
     if num == 0:
         if pattern == 1:
@@ -61,11 +62,21 @@ def get_datetime(time, pattern):
             )
             time1 = datetime(int(time.split("-")[0]), int(time.split("-")[1]), num_days)
     elif num == 2:
-        time1 = datetime(
-            int(time.split("-")[0]),
-            int(time.split("-")[1]),
-            int(time.split("-")[2]),
-        )
+        if pattern == 1:
+            time1 = datetime(
+                int(time.split("-")[0]),
+                int(time.split("-")[1]),
+                int(time.split("-")[2]),
+            )
+        else:
+            time1 = datetime(
+                int(time.split("-")[0]),
+                int(time.split("-")[1]),
+                int(time.split("-")[2]),
+                23,
+                59,
+                59,
+            )
     return time1
 
 

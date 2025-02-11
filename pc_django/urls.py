@@ -43,10 +43,12 @@ from apps.images.views import (
 from apps.pay.views import AlipayView
 from apps.search.views import (
     SelectImagesByTime,
+    SelectImagesByTimeZone,
     SelectImagesByPosition,
     SelectImagesByTags,
     SelectImagesByDescription,
     SelectImagesByTPTD,
+    GetTags,
 )
 from apps.qr_code.views import (
     QRcodeView,
@@ -106,11 +108,17 @@ urlpatterns = [
     # 搜索图片
     path("search/image/time", SelectImagesByTime.as_view(), name="search_images_time"),
     path(
+        "search/image/timezone",
+        SelectImagesByTimeZone.as_view(),
+        name="search_image_timezone",
+    ),
+    path(
         "search/image/position",
         SelectImagesByPosition.as_view(),
         name="search_images_position",
     ),
     path("search/image/tags", SelectImagesByTags.as_view(), name="search_images_tags"),
+    path("search/image/tag", GetTags.as_view(), name="get_tags"),
     path(
         "search/image/description",
         SelectImagesByDescription.as_view(),
@@ -120,7 +128,7 @@ urlpatterns = [
     # -----------------------------------------------------------------------------
     # ------------------------------ qr_code -------------------------------------
     path("qrcode", QRcodeView.as_view(), name="get_QRcode"),
-    path("getqrcode", QRcodeStateView.as_view(), name="get_QRcode_state"),
-    path("scanqrcode", PhoneScanned.as_view(), name="phone_scan"),
-    path("qrlogin", QRcodeLoginView.as_view(), name="qrcode_login"),
+    path("qrcode/get", QRcodeStateView.as_view(), name="get_QRcode_state"),
+    path("qrcode/scan", PhoneScanned.as_view(), name="phone_scan"),
+    path("qrcode/login", QRcodeLoginView.as_view(), name="qrcode_login"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
