@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "apps.images",
     "apps.pay",
     "apps.search",
+    "apps.qr_code",
 ]
 
 MIDDLEWARE = [

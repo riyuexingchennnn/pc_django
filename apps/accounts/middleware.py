@@ -4,22 +4,24 @@ from apps.utils.token_util import parse_token
 from django.shortcuts import HttpResponseRedirect
 from rest_framework import status
 
+
 class LoginInterceptorMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
-    
+
     def __call__(self, request):
         # 获取请求的URL
         url = request.path
         # 开放的URL列表
         open_urls = [
-            '/',
-            '/admin/',
-            '/api/login',
-            '/api/send-email-verification-code',
-            '/api/register',
-            '/api/forgot_password',
-            '/api/change_password',
+            "/",
+            "/admin/",
+            "/api/login",
+            "/api/send-email-verification-code",
+            "/api/register",
+            "/api/forgot_password",
+            "/api/change_password",
+            "/qrcode",
         ]
         # 直接放行的页面
         if url in open_urls:
@@ -34,5 +36,5 @@ class LoginInterceptorMiddleware:
         payload = parse_token(token)
         if not payload:
             return HttpResponseRedirect("/api/login")
-        
+
         return self.get_response(request)

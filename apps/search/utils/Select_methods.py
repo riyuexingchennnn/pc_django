@@ -1,3 +1,6 @@
+import calendar
+from datetime import datetime
+
 from apps.images.models import Image, ImageTag
 import requests
 from apps.search.utils.Cosine_similarity import cos_similarity
@@ -39,6 +42,46 @@ def select_by_time(images, time):
     images_id = [image.id for image in images]
 
     return images_id, images_url, images
+
+
+def get_datetime(time, pattern):
+    global time1
+    num = time.count("-")
+    if num == 0:
+        if pattern == 1:
+            time1 = datetime(int(time), 1, 1)
+        else:
+            time1 = datetime(int(time), 12, 31)
+    elif num == 1:
+        if pattern == 1:
+            time1 = datetime(int(time.split("-")[0]), int(time.split("-")[1]), 1)
+        else:
+            _, num_days = calendar.monthrange(
+                int(time.split("-")[0]), int(time.split("-")[1])
+            )
+            time1 = datetime(int(time.split("-")[0]), int(time.split("-")[1]), num_days)
+    elif num == 2:
+        time1 = datetime(
+            int(time.split("-")[0]),
+            int(time.split("-")[1]),
+            int(time.split("-")[2]),
+        )
+    return time1
+
+
+def select_by_timezone(images, start_time, end_time):
+    """
+    按时间范围查找
+    """
+    time1 = get_datetime(start_time, 1)
+    time2 = get_datetime(end_time, 2)
+
+    images = images.filter(time__range=(time1, time2))
+
+    ids = [image.id for image in images]
+    urls = [image.url for image in images]
+
+    return ids, urls, images
 
 
 def select_by_position(image_list, position):

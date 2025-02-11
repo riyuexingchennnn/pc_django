@@ -48,7 +48,12 @@ from apps.search.views import (
     SelectImagesByDescription,
     SelectImagesByTPTD,
 )
-from apps.qr_code.views import QRcodeView
+from apps.qr_code.views import (
+    QRcodeView,
+    QRcodeStateView,
+    PhoneScanned,
+    QRcodeLoginView,
+)
 
 
 urlpatterns = [
@@ -115,4 +120,7 @@ urlpatterns = [
     # -----------------------------------------------------------------------------
     # ------------------------------ qr_code -------------------------------------
     path("qrcode", QRcodeView.as_view(), name="get_QRcode"),
+    path("getqrcode", QRcodeStateView.as_view(), name="get_QRcode_state"),
+    path("scanqrcode", PhoneScanned.as_view(), name="phone_scan"),
+    path("qrlogin", QRcodeLoginView.as_view(), name="qrcode_login"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

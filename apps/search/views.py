@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from openai import images
 from rest_framework.views import APIView
 from apps.search.utils.Select_methods import (
     select_by_userid,
@@ -151,3 +152,12 @@ class SelectImages(APIView):
                 "urls": urls,
             }
         )
+
+
+class SelectImagesByTimeZone(APIView):
+    def post(self, request, *args, **kwargs):
+        user_id = request.data.get("user_id")
+        start_time = request.data.get("starttime")
+        end_time = request.data.get("endtime")
+
+        images = select_by_userid(user_id=user_id)
