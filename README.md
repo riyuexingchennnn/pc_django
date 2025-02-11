@@ -260,7 +260,7 @@ python3 manage.py migrate
 如果发现没有产生migrations文夹，可以单个为某个Django应用创建migrations：
 
 ```
-python3 manage.py makemigrations accounts
+python3 manage.py makemigrations
 python3 manage.py migrate
 ```
 
@@ -268,6 +268,12 @@ python3 manage.py migrate
 
 ```
 python3 manage.py runserver
+```
+
+或
+
+```
+python manage.py runserver 0.0.0.0:8000
 ```
 
 如果出现了`Error: That port is already in use.`，说明端口被占用，查看占用端口的进程并杀死之。
