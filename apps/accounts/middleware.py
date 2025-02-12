@@ -36,7 +36,7 @@ class LoginInterceptorMiddleware:
             "/qrcode/login",
         ]
         # 直接放行的页面
-        if url in open_urls:
+        if url in open_urls or url.startswith("/admin/"):
             return self.get_response(request)
         # 验证用户身份
         token = request.META.get("HTTP_AUTHORIZATION")
