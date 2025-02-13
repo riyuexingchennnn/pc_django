@@ -48,6 +48,8 @@ from apps.search.views import (
     SelectImagesByDescription,
     SelectImagesByTPTD,
 )
+from apps.qr_code.views import QRcodeView
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),  # Django 自带的后台管理系统
@@ -92,7 +94,7 @@ urlpatterns = [
     # ------------------------------ pay -------------------------------------
     # 支付
     path("pay/alipay", AlipayView.as_view(), name="alipay"),
-    path("pay/alipay", AlipayView.as_view(), name="alipay_success"),
+    # path("pay/alipay", AlipayView.as_view(), name="alipay_success"),
     # path("pay/alipay/notify", alipay_notify)
     # -------------------------------------------------------------------------
     # ------------------------------ search -------------------------------------
@@ -111,4 +113,6 @@ urlpatterns = [
     ),
     path("search/image", SelectImagesByTPTD.as_view(), name="search_image"),
     # -----------------------------------------------------------------------------
+    # ------------------------------ qr_code -------------------------------------
+    path("qrcode", QRcodeView.as_view(), name="get_QRcode"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

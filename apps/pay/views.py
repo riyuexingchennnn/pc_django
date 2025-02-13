@@ -1,5 +1,4 @@
 from datetime import timedelta
-from django.contrib.sites import requests
 from rest_framework.views import APIView
 from alipay.aop.api.AlipayClientConfig import AlipayClientConfig
 from alipay.aop.api.DefaultAlipayClient import DefaultAlipayClient
@@ -11,7 +10,6 @@ from django.http import JsonResponse
 from django.http import HttpResponse
 import uuid
 import logging
-import requests
 from apps.pay.models import ConsumptionHistory, ContinueTime
 from apps.pay.utils.User_exist import user_is_exist
 
@@ -34,13 +32,13 @@ class AlipayView(APIView):
 
         user_id = request.data.get("user_id")
         pattern = request.data.get("pattern")
-        print("111111111111111111111111111111111111111111111111111111111111111")
+
         if not user_is_exist(user_id):
             return JsonResponse(
                 {"state": "Failed", "message": "未找到该用户"},
                 status=400,
             )
-        print("222222222222222222222222222222222222222222222222222222222222222")
+
         uuid1 = uuid.uuid1()
         out_trade_no = str(uuid1).replace("-", "")
 
@@ -55,9 +53,9 @@ class AlipayView(APIView):
                 total_amount = "20.00"
 
             item = ContinueTime.objects.filter(user_id=user_id).first()
-            print("4444444444444444444444444444444444444444444444444444444")
+
             if item is not None and item.type != subject:
-                print("555555555555555555555555555555555555555555")
+
                 return JsonResponse(
                     {
                         "state": "failed",
@@ -115,10 +113,15 @@ class AlipayView(APIView):
     # 支付宝返回函数
     def get(self, request, *args, **kwargs):
         # 向数据库中保存相关数据
+        trade_no1 = request.data.get("out_trade_no")
         trade_on = request.GET.get("out_trade_no")
-
-        history = ConsumptionHistory.objects.get(trade_no=trade_on)
-        history.is_success = True
+        print(trade_no1)
+        print(trade_on)
+        if len(ConsumptionHistory.objects.filter(trade_no=trade_on)) == 0:
+            history = ConsumptionHistory.objects.filter(trade_no=trade_no1).first()
+        else:
+            history = ConsumptionHistory.objects.filter(trade_no=trade_on).first()
+        print(history)
         history.save()
         user_id = history.user_id_id
         pattern = history.trade_description

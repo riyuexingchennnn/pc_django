@@ -63,6 +63,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",  # 跨域请求
+    "apps.accounts.middleware.LoginInterceptorMiddleware",  # 登录拦截器"
 ]
 
 # 允许所有来源访问

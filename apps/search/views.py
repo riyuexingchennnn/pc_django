@@ -1,10 +1,13 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
-from apps.search.utils.Select_time import select_by_time
-from apps.search.utils.Select_tag import select_by_tags
-from apps.search.utils.Select_description import select_by_description
-from apps.search.utils.Select_userid import select_by_userid
-from apps.search.utils.Select_position import select_by_position
+from apps.search.utils.Select_methods import (
+    select_by_userid,
+    select_by_time,
+    select_by_position,
+    select_by_tags,
+    select_by_description,
+)
+from apps.images.models import ImageTag
 
 # Create your views here.
 
@@ -118,4 +121,33 @@ class SelectImagesByTPTD(APIView):
 
         return JsonResponse(
             {"state": "success", "image_id": idList, "image_url": urlList}
+        )
+
+
+class SelectImages(APIView):
+    def post(self, request, *args, **kwargs):
+        user_id = request.data.get("user_id")
+        message = request.data.get("message")
+
+        images = select_by_userid(user_id=user_id)
+        # 判断是否为地点
+        _, _, images = select_by_position(images, position=message)
+        if len(images) == 0:
+            # 判断是否为时间
+            mes = str(message).replace(".", "-")
+            _, _, images = select_by_time(images, time=mes)
+            if len(images) == 0:
+                tags = [
+                    image.tag_name for image in ImageTag.objects.filter(user_id=user_id)
+                ]
+
+        ids = [image.id for image in images]
+        urls = [image.url for image in images]
+
+        return JsonResponse(
+            {
+                "state": "success",
+                "ids": ids,
+                "urls": urls,
+            }
         )
