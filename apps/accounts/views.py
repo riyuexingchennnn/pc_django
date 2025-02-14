@@ -247,7 +247,7 @@ class LoginOutView(APIView):
         return Response({"message": "成功退出登录"}, status=status.HTTP_200_OK)
 
 
-# 忘记密码
+# 忘记密码, 已测试
 class ChangePasswordView(APIView):
     def post(self, request):
         email = request.data.get("email")
