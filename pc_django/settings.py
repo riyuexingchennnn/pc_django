@@ -9,13 +9,6 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-print(r'''
-  ____    _           ____   _                       _ 
- |  _ \  (_)   ___   / ___| | |   ___    _   _    __| |
- | |_) | | |  / __| | |     | |  / _ \  | | | |  / _` |
- |  __/  | | | (__  | |___  | | | (_) | | |_| | | (_| |
- |_|     |_|  \___|  \____| |_|  \___/   \__,_|  \__,_|                                            
-    ''')
     
 from pathlib import Path
 
@@ -203,7 +196,7 @@ LOGGING = {
     },
     "handlers": {
         "console": {
-            "level": "DEBUG",  # 只记录 DEBUG 级别及以上的日志
+            "level": "INFO",  # 只记录 DEBUG 级别及以上的日志
             "class": "logging.StreamHandler",
             "formatter": "simple",
         },

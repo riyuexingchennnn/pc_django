@@ -1,9 +1,6 @@
 import calendar
-import time
 from datetime import datetime
-from apps.search.utils.citydata import data_
 from apps.images.models import Image, ImageTag
-import requests
 from apps.search.utils.Cosine_similarity import cos_similarity
 
 
