@@ -4,7 +4,7 @@ from apps.utils.token_util import parse_token
 from django.shortcuts import HttpResponseRedirect
 from rest_framework import status
 
-
+# 登录拦截中间件
 class LoginInterceptorMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
