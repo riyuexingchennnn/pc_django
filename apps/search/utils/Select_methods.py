@@ -95,97 +95,81 @@ def select_by_timezone(images, start_time, end_time):
     return ids, urls, images
 
 
-count = 0
-
-
-# def GaodeAPI(url):
-#     global count
-#     start_time = time.time()  # 记录开始时间
-#
-#     print(count)
-#     if count >= 3:
-#         time.sleep(0.00005)
-#         count = 0
-#     count += 1
-#
-#     response = requests.get(url)
-#
-#     end_time = time.time()  # 记录结束时间
-#     print(f"API request took {end_time - start_time} seconds.")
-#
-#     return response
-
-
-# def select_by_position(image_list, position):
-#     images = []
-#     # 你的高德地图API Key
-#     API_KEY = "***REMOVED***"
-#     url = f"https://restapi.amap.com/v3/geocode/geo?key={API_KEY}&address={position}"
-#
-#     # response = GaodeAPI(url=url)
-#     response = requests.get(url)
-#
-#     print(response.json())
-#
-#     if response.status_code == 200:
-#         json = response.json()
-#         print(json["geocodes"][0]["level"])
-#         if json["geocodes"][0]["level"] == "省":
-#             for image in image_list:
-#                 url1 = f"https://restapi.amap.com/v3/geocode/geo?key={API_KEY}&address={image.position}"
-#                 # response1 = GaodeAPI(url=url1)
-#                 # time.sleep(0)
-#                 response1 = requests.get(url1)
-#                 print(response1.json())
-#                 if (
-#                     response1.json()["geocodes"][0]["province"]
-#                     == json["geocodes"][0]["province"]
-#                 ):
-#                     images.append(image)
-#         elif json["geocodes"][0]["level"] == "市":
-#             for image in image_list:
-#                 url1 = f"https://restapi.amap.com/v3/geocode/geo?key={API_KEY}&address={image.position}"
-#                 # response1 = GaodeAPI(url=url1)
-#                 # time.sleep(0)
-#                 response1 = requests.get(url1)
-#                 print(response1.json())
-#                 if (
-#                     response1.json()["geocodes"][0]["city"]
-#                     == json["geocodes"][0]["city"]
-#                     and response1.json()["geocodes"][0]["province"]
-#                     == json["geocodes"][0]["province"]
-#                 ):
-#                     images.append(image)
-#             pass
-#         elif json["geocodes"][0]["level"] == "区县":
-#             for image in image_list:
-#                 url1 = f"https://restapi.amap.com/v3/geocode/geo?key={API_KEY}&address={image.position}"
-#                 # response1 = GaodeAPI(url=url1)
-#                 # time.sleep(0)
-#                 response1 = requests.get(url1)
-#                 print(response1.json())
-#                 if (
-#                     response1.json()["geocodes"][0]["city"]
-#                     == json["geocodes"][0]["city"]
-#                     and response1.json()["geocodes"][0]["province"]
-#                     == json["geocodes"][0]["province"]
-#                     and response1.json()["geocodes"][0]["district"]
-#                     == json["geocodes"][0]["district"]
-#                 ):
-#                     images.append(image)
-#         else:
-#             # 区域太小
-#             pass
-#
-#     images_url = [image.url for image in images]
-#     images_id = [image.id for image in images]
-#
-#     return images_id, images_url, images
-
-
 def select_by_position(image_list, position):
+    images = []
+    # 你的高德地图API Key
+    API_KEY = "***REMOVED***"
+    url = f"https://restapi.amap.com/v3/geocode/geo?key={API_KEY}&address={position}"
 
-    pass
+    response = requests.get(url)
+
+    print(response.json())
+
+    if response.status_code == 200:
+        json = response.json()
+        print(json["geocodes"][0]["level"])
+        if json["geocodes"][0]["level"] == "省":
+            province = json["geocodes"][0]["province"]
+            for image in image_list:
+                if image.position.count(province) != 0:
+                    images.append(image)
+        elif json["geocodes"][0]["level"] == "市":
+            province = json["geocodes"][0]["province"]
+            if province == "北京市":
+                city = "北京城区"
+            elif province == "上海市":
+                city = "上海城区"
+            elif province == "天津市":
+                city = "天津城区"
+            elif province == "重庆市":
+                city = ""
+            else:
+                city = json["geocodes"][0]["city"]
+            site = str(province + city)
+            for image in image_list:
+                if image.position.count(site) != 0:
+                    images.append(image)
+        elif json["geocodes"][0]["level"] == "区县":
+            province = json["geocodes"][0]["province"]
+            district = json["geocodes"][0]["district"]
+            if province == "北京市":
+                city = "北京城区"
+            elif province == "上海市":
+                city = "上海城区"
+            elif province == "天津市":
+                city = "天津城区"
+            elif province == "重庆市":
+                if district in [
+                    "巫溪县",
+                    "奉节县",
+                    "彭水苗族土家族自治县",
+                    "秀山土家族苗族自治县",
+                    "石柱土家族自治县",
+                    "巫山县",
+                    "丰都县",
+                    "城口县",
+                    "忠县",
+                    "垫江县",
+                    "云阳县",
+                    "酉阳土家族苗族自治县",
+                ]:
+                    city = "重庆郊县"
+                else:
+                    city = "重庆城区"
+            else:
+                city = json["geocodes"][0]["city"]
+            site = str(province + city + district)
+            for image in image_list:
+                if image.position.count(site) != 0:
+                    images.append(image)
+        else:
+            # 区域太小
+            pass
+
+    images_url = [image.url for image in images]
+    images_id = [image.id for image in images]
+
+    return images_id, images_url, images
 
 
 def select_by_tags(images, tags_list):
