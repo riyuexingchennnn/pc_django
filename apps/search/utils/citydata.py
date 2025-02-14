@@ -1,4 +1,4 @@
-data = {
+data_ = {
     "citycode": [],
     "adcode": "100000",
     "name": "中华人民共和国",

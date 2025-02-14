@@ -9,7 +9,14 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+print(r'''
+  ____    _           ____   _                       _ 
+ |  _ \  (_)   ___   / ___| | |   ___    _   _    __| |
+ | |_) | | |  / __| | |     | |  / _ \  | | | |  / _` |
+ |  __/  | | | (__  | |___  | | | (_) | | |_| | | (_| |
+ |_|     |_|  \___|  \____| |_|  \___/   \__,_|  \__,_|                                            
+    ''')
+    
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -103,7 +110,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "piccloud",  # 这里是你创建的数据库名
         "USER": "root",  # 这里是你创建的数据库用户名
-        "PASSWORD": "123",  # 这里是你设置的密码，windows上必须4位，呜呜呜
+        "PASSWORD": "1234",  # 这里是你设置的密码，windows上必须4位，呜呜呜
         "HOST": "localhost",
         "PORT": "3306",  # 默认端口
     }
