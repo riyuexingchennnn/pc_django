@@ -47,7 +47,7 @@ from apps.search.views import (
     SelectImagesByPosition,
     SelectImagesByTags,
     SelectImagesByDescription,
-    SelectImagesByTPTD,
+    SelectImagesByTPT,
     GetTags,
 )
 from apps.qr_code.views import (
@@ -124,7 +124,7 @@ urlpatterns = [
         SelectImagesByDescription.as_view(),
         name="search_images_description",
     ),
-    path("search/image", SelectImagesByTPTD.as_view(), name="search_image"),
+    path("search/image", SelectImagesByTPT.as_view(), name="search_image"),
     # -----------------------------------------------------------------------------
     # ------------------------------ qr_code -------------------------------------
     path("qrcode", QRcodeView.as_view(), name="get_QRcode"),
