@@ -20,17 +20,52 @@ class SelectImagesByTime(APIView):
         user_id = request.data.get("user_id")
         time = request.data.get("time")
 
-        images_id, images_url, _ = select_by_time(
+        images_id, images_url, images = select_by_time(
             select_by_userid(user_id=user_id), time=time
         )
 
-        return JsonResponse(
-            {
-                "state": "success",
-                "image_id": images_id,
-                "image_url": images_url,
-            }
+        if len(images) != 0:
+            return JsonResponse(
+                {
+                    "state": "success",
+                    "image_id": images_id,
+                    "image_url": images_url,
+                }
+            )
+        else:
+            return JsonResponse(
+                {
+                    "state": "failed",
+                    "message": "未找到这个时间的图片",
+                }
+            )
+
+
+class SelectImagesByTimeZone(APIView):
+    def post(self, request, *args, **kwargs):
+        user_id = request.data.get("user_id")
+        start_time = request.data.get("starttime")
+        end_time = request.data.get("endtime")
+
+        ids, urls, images = select_by_timezone(
+            select_by_userid(user_id=user_id), start_time=start_time, end_time=end_time
         )
+
+        if len(images) != 0:
+            return JsonResponse(
+                {
+                    "state": "success",
+                    "ids": ids,
+                    "urls": urls,
+                }
+            )
+        else:
+            return JsonResponse(
+                {
+                    "state": "failed",
+                    "message": "未找到这个时间段的图片",
+                }
+            )
 
 
 class SelectImagesByPosition(APIView):
@@ -39,17 +74,25 @@ class SelectImagesByPosition(APIView):
         user_id = request.data.get("user_id")
         position = request.data.get("position")
 
-        images_id, images_url, _ = select_by_position(
+        images_id, images_url, images = select_by_position(
             select_by_userid(user_id=user_id), position=position
         )
-        return JsonResponse(
-            {
-                "state": "success",
-                "image_url": images_url,
-                "image_id": images_id,
-            }
-        )
-        pass
+
+        if len(images) != 0:
+            return JsonResponse(
+                {
+                    "state": "success",
+                    "image_url": images_url,
+                    "image_id": images_id,
+                }
+            )
+        else:
+            return JsonResponse(
+                {
+                    "state": "failed",
+                    "message": "未找到这个地点的图片",
+                }
+            )
 
 
 class SelectImagesByTags(APIView):
@@ -58,17 +101,25 @@ class SelectImagesByTags(APIView):
         user_id = request.data.get("user_id")
         tags_list = request.data.get("tags")
 
-        urlList, idList, _ = select_by_tags(
+        urlList, idList, images = select_by_tags(
             select_by_userid(user_id=user_id), tags_list=tags_list
         )
 
-        return JsonResponse(
-            {
-                "state": "success",
-                "image_url": urlList,
-                "image_id": idList,
-            }
-        )
+        if len(images) != 0:
+            return JsonResponse(
+                {
+                    "state": "success",
+                    "image_url": urlList,
+                    "image_id": idList,
+                }
+            )
+        else:
+            return JsonResponse(
+                {
+                    "state": "failed",
+                    "message": "未找到带有这些标签的图片",
+                }
+            )
 
 
 class SelectImagesByDescription(APIView):
@@ -77,16 +128,24 @@ class SelectImagesByDescription(APIView):
         user_id = request.data.get("user_id")
         description = request.data.get("description")
 
-        idList, urlList, _ = select_by_description(
+        idList, urlList, images = select_by_description(
             select_by_userid(user_id=user_id), description=description
         )
 
-        return JsonResponse(
-            {"state": "success", "image_id": idList, "image_url": urlList}
-        )
+        if len(images) != 0:
+            return JsonResponse(
+                {"state": "success", "image_id": idList, "image_url": urlList}
+            )
+        else:
+            return JsonResponse(
+                {
+                    "state": "failed",
+                    "message": "未找到与描述的图片",
+                }
+            )
 
 
-class SelectImagesByTPTD(APIView):
+class SelectImagesByTPT(APIView):
     def post(self, request, *args, **kwargs):
         user_id = request.data.get("user_id")
         start_time = request.data.get("starttime")
@@ -99,7 +158,6 @@ class SelectImagesByTPTD(APIView):
 
         # 按时间筛选
         if start_time != "" and end_time != "":
-            pass
             _, _, images = select_by_timezone(
                 images=images, start_time=start_time, end_time=end_time
             )
@@ -123,9 +181,17 @@ class SelectImagesByTPTD(APIView):
             urlList = list(url1)
             idList = list(id1)
 
-        return JsonResponse(
-            {"state": "success", "image_id": idList, "image_url": urlList}
-        )
+        if len(idList) != 0 and len(urlList) != 0:
+            return JsonResponse(
+                {"state": "success", "image_id": idList, "image_url": urlList}
+            )
+        else:
+            return JsonResponse(
+                {
+                    "state": "failed",
+                    "message": "未找到相关图片",
+                }
+            )
 
 
 class SelectImages(APIView):
@@ -148,35 +214,21 @@ class SelectImages(APIView):
         ids = [image.id for image in images]
         urls = [image.url for image in images]
 
-        return JsonResponse(
-            {
-                "state": "success",
-                "ids": ids,
-                "urls": urls,
-            }
-        )
-
-
-class SelectImagesByTimeZone(APIView):
-    def post(self, request, *args, **kwargs):
-        user_id = request.data.get("user_id")
-        start_time = request.data.get("starttime")
-        end_time = request.data.get("endtime")
-
-        print(start_time, end_time)
-
-        images = select_by_userid(user_id=user_id)
-        ids, urls, _ = select_by_timezone(
-            images=images, start_time=start_time, end_time=end_time
-        )
-
-        return JsonResponse(
-            {
-                "state": "success",
-                "ids": ids,
-                "urls": urls,
-            }
-        )
+        if len(images) != 0:
+            return JsonResponse(
+                {
+                    "state": "success",
+                    "ids": ids,
+                    "urls": urls,
+                }
+            )
+        else:
+            return JsonResponse(
+                {
+                    "state": "failed",
+                    "message": "未找到相关图片",
+                }
+            )
 
 
 class GetTags(APIView):
