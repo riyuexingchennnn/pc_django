@@ -1,4 +1,5 @@
 import calendar
+import requests
 from datetime import datetime
 from apps.images.models import Image, ImageTag
 from apps.search.utils.Cosine_similarity import cos_similarity
