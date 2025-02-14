@@ -6,6 +6,8 @@ django-cors-headers # 用于解决跨域问题
 drf-yasg # 用于构建Swagger文档
 alipay-sdk-python
 requests~=2.32.3
+setuptools
+wheel
 # ------------------------------------
 
 # ---------------- ai ----------------

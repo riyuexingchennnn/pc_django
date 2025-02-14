@@ -9,7 +9,7 @@ from apps.search.utils.Select_methods import (
     select_by_timezone,
 )
 from apps.images.models import ImageTag
-from utils.data import data
+from .utils.citydata import data_
 
 # Create your views here.
 
@@ -253,14 +253,14 @@ class GetTags(APIView):
 
 class GetProvinces(APIView):
     def get(self, *args, **kwargs):
-        provinces = [province["name"] for province in data["districts"]]
+        provinces = [province["name"] for province in data_["districts"]]
         return JsonResponse({"provinces": provinces})
 
 
 class GetCity(APIView):
     def post(self, request, *args, **kwargs):
-        province = request.data.get("province")
-        for prov in data["districts"]:
+        province = request.data_.get("province")
+        for prov in data_["districts"]:
             if prov["name"] == province:
                 cities = [city["name"] for city in prov["districts"]]
                 return JsonResponse({"cities": cities})
@@ -269,7 +269,7 @@ class GetCity(APIView):
 class GetDistrict(APIView):
     def post(self, request, *args, **kwargs):
         city = request.data.get("city")
-        for prov in data["districts"]:
+        for prov in data_["districts"]:
             for cy in prov["districts"]:
                 if cy["name"] == city:
                     districts = [district["name"] for district in cy["districts"]]
