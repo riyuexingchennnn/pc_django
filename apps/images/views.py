@@ -9,6 +9,7 @@ from qcloud_cos.cos_exception import CosClientError, CosServiceError
 import base64
 import urllib.parse
 from django.core.exceptions import ObjectDoesNotExist
+from apps.utils.reverse_geocoding import reverse_geocoding
 
 from .utils.ai import (
     content_filter,
@@ -28,7 +29,8 @@ from apps.utils.cos_util import (
 # 设置日志
 logger = logging.getLogger("django")
 
-logger.info(r'''____    _           ____   _                       _ 
+logger.info(r'''
+     ____    _           ____   _                       _ 
     |  _ \  (_)   ___   / ___| | |   ___    _   _    __| |
     | |_) | | |  / __| | |     | |  / _ \  | | | |  / _` |
     |  __/  | | | (__  | |___  | | | (_) | | |_| | | (_| |
@@ -57,8 +59,9 @@ class UploadImageView(APIView):
         image_file = request.FILES.get("image")  # 获取图片文件(这个只能一张图片)
         time = request.data.get("time") or None  # 获取拍摄时间
         category = request.data.get("category") or "未分类"  # 获取分组
-        position = request.data.get("position") or None  # 获取位置
-        folder_url = request.data.get("folder_url") or "root/"  # 获取文件夹
+        latitude = request.data.get("latitude") or None  # 获取纬度
+        longitude = request.data.get("longitude") or None  # 获取经度
+        folder_url = request.data.get("folder_url") or "默认文件夹/"  # 获取文件夹
         
         # 验证必填字段，图片文件
         if not image_file:
@@ -104,12 +107,14 @@ class UploadImageView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )  # 返回400错误，表示请求错误
 
+        # 判断地理位置信息
+        position = ""
+        if latitude and longitude:
+            position = reverse_geocoding(longitude, latitude)
+            # print("拍摄位置: ", position)
+        
         # 生成一个唯一的UUID作为文件名
         image_id = str(uuid.uuid4())
-
-        logger.debug(
-            f"Metadata - user_id: {user_id}, time: {time}, category: {category}, position: {position}, name: {image_file.name}"
-        )
 
         if image_file.size > 10 * 1024 * 1024:
             return Response(

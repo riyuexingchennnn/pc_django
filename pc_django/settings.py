@@ -135,11 +135,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "zh-Hans"
 
-TIME_ZONE = "Asia/Shanghai"
+TIME_ZONE = "Asia/Shanghai" # 设为你所在的时区
 
 USE_I18N = False
 
-USE_TZ = False
+USE_TZ = True # 开启时区支持
 
 
 # Static files (CSS, JavaScript, Images)
@@ -163,10 +163,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
 # --------------------- 日志配置 ----------------------------
-# 上面有赋值UTC，但是这里不设置时区，会有问题
-TIME_ZONE = "Asia/Shanghai"  # 设为你所在的时区
-USE_TZ = True  # 开启时区支持
-
 from datetime import datetime
 
 USE_RELOADER = False
