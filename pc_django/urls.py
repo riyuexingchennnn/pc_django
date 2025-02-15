@@ -40,7 +40,7 @@ from apps.images.views import (
     UpdateImageView,
     DownloadImageView,
 )
-from apps.pay.views import AlipayView
+from apps.pay.views import AlipayView, GetUserMembership
 from apps.search.views import (
     SelectImagesByTime,
     SelectImagesByTimeZone,
@@ -104,6 +104,9 @@ urlpatterns = [
     # ------------------------------ pay -------------------------------------
     # 支付
     path("pay/alipay", AlipayView.as_view(), name="alipay"),
+    path(
+        "pay/getmembership", GetUserMembership.as_view(), name="get_user's_membership"
+    ),
     # path("pay/alipay", AlipayView.as_view(), name="alipay_success"),
     # path("pay/alipay/notify", alipay_notify)
     # -------------------------------------------------------------------------

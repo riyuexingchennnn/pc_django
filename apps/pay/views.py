@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from rest_framework.views import APIView
 from alipay.aop.api.AlipayClientConfig import AlipayClientConfig
 from alipay.aop.api.DefaultAlipayClient import DefaultAlipayClient
@@ -12,6 +12,7 @@ import uuid
 import logging
 from apps.pay.models import ConsumptionHistory, ContinueTime
 from apps.pay.utils.User_exist import user_is_exist
+from apps.accounts.models import User
 
 logger = logging.getLogger("django")
 
@@ -133,6 +134,13 @@ class AlipayView(APIView):
             deadline=deadline,
         )
 
+        user = User.objects.filter(id=user_id).first()
+        if pattern == "银牌会员":
+            user.membership = "silver"
+        elif pattern == "金牌会员":
+            user.membership = "gold"
+        user.save()
+
         # url = "http:localhost:8000"
         # data = {
         #     "message": "支付成功",
@@ -146,3 +154,21 @@ class AlipayView(APIView):
 
         method = request.method
         return HttpResponse(method + "支付成功")
+
+
+class GetUserMembership(APIView):
+    def post(self, request, *args, **kwargs):
+        user_id = request.data.get("user_id")
+        user = User.objects.filter(id=user_id).first()
+        membership = user.membership
+        if membership == "free":
+            return JsonResponse({"membership": membership})
+        current_time = datetime.now()
+        item = ContinueTime.objects.filter(user_id=user_id).first()
+        deadline = item.deadline
+        if deadline > current_time:
+            return JsonResponse({"membership": membership})
+        else:
+            user.membership = "free"
+            user.save()
+            return JsonResponse({"membership": "free"})

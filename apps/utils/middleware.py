@@ -4,6 +4,7 @@ from apps.utils.token_util import parse_token
 from django.shortcuts import HttpResponseRedirect
 from rest_framework import status
 
+
 # 登录拦截中间件
 class LoginInterceptorMiddleware:
     def __init__(self, get_response):
@@ -23,6 +24,7 @@ class LoginInterceptorMiddleware:
             "/api/change_password",
             "/qrcode",
             "/pay/alipay",
+            "/pay/getmembership",
             "/search/image/time",
             "/search/image/timezone",
             "/search/image/position",
