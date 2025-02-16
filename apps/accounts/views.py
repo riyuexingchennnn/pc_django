@@ -107,7 +107,7 @@ class LoginView(APIView):
         if User.objects.filter(email=email).exists():
             user = User.objects.get(email=email)
         if user is None:
-            return Response({"message": "用户不存在"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"status": "error", "message": "用户不存在"}, status=status.HTTP_401_NOT_FOUND)
         if user.check_password(password):
             # access_token生成
             expiration_time = timezone.now() + timezone.timedelta(minutes=15)
@@ -200,7 +200,7 @@ class SendCodeView(APIView):
         email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         if not re.match(email_regex, email):
             return Response(
-                {"message": "邮箱格式不正确"}, status=status.HTTP_400_BAD_REQUEST
+                {"status": "error", "message": "邮箱格式不正确"}, status=status.HTTP_400_BAD_REQUEST
             )
         # 验证邮箱是否存在
         if User.objects.filter(email=email).exists():
@@ -298,7 +298,7 @@ class ForgetPasswordView(APIView):
         email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         if not re.match(email_regex, email):
             return Response(
-                {"message": "邮箱格式不正确"}, status=status.HTTP_400_BAD_REQUEST
+                {"status": "error", "message": "邮箱格式不正确"}, status=status.HTTP_400_BAD_REQUEST
             )
         # 验证邮箱是否存在
         if not User.objects.filter(email=email).exists():
@@ -310,7 +310,7 @@ class ForgetPasswordView(APIView):
         code = VerificationCode.objects.get(email=email)
         if code is not None and code.is_sleep:
             return Response(
-                {"message": "请60秒后再试"},
+                {"status": "error", "message": "请60秒后再试"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         create_code_and_send(email)

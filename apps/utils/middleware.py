@@ -19,6 +19,7 @@ class LoginInterceptorMiddleware:
             "/admin/",
             "/api/login",
             "/api/send-email-verification-code",
+            "api/validate-token",
             "/api/register",
             "/api/forgot_password",
             "/api/change_password",
