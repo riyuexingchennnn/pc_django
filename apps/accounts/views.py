@@ -392,15 +392,7 @@ class ChangeInfoView(APIView):
 class DeleteUserView(APIView):
     def post(self, request):
         token = request.META.get("HTTP_AUTHORIZATION")
-        if not token:
-            return Response(
-                {"message": "token未提供"}, status=status.HTTP_400_BAD_REQUEST
-            )
         payload = parse_token(token)
-        if not payload:
-            return Response(
-                {"message": "token无效"}, status=status.HTTP_400_BAD_REQUEST
-            )
         user_id = payload.get("user_id")
         user = User.objects.get(id=user_id)
         user.delete()
