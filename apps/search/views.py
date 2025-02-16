@@ -195,41 +195,41 @@ class SelectImagesByTPT(APIView):
             )
 
 
-class SelectImages(APIView):
-    def post(self, request, *args, **kwargs):
-        user_id = request.data.get("user_id")
-        message = request.data.get("message")
-
-        images = select_by_userid(user_id=user_id)
-        # 判断是否为地点
-        _, _, images = select_by_position(images, position=message)
-        if len(images) == 0:
-            # 判断是否为时间
-            mes = str(message).replace(".", "-")
-            _, _, images = select_by_time(images, time=mes)
-            if len(images) == 0:
-                tags = [
-                    image.tag_name for image in ImageTag.objects.filter(user_id=user_id)
-                ]
-
-        ids = [image.id for image in images]
-        urls = [image.url for image in images]
-
-        if len(images) != 0:
-            return JsonResponse(
-                {
-                    "state": "success",
-                    "ids": ids,
-                    "urls": urls,
-                }
-            )
-        else:
-            return JsonResponse(
-                {
-                    "state": "failed",
-                    "message": "未找到相关图片",
-                }
-            )
+# class SelectImages(APIView):
+#     def post(self, request, *args, **kwargs):
+#         user_id = request.data.get("user_id")
+#         message = request.data.get("message")
+#
+#         images = select_by_userid(user_id=user_id)
+#         # 判断是否为地点
+#         _, _, images = select_by_position(images, position=message)
+#         if len(images) == 0:
+#             # 判断是否为时间
+#             mes = str(message).replace(".", "-")
+#             _, _, images = select_by_time(images, time=mes)
+#             if len(images) == 0:
+#                 tags = [
+#                     image.tag_name for image in ImageTag.objects.filter(user_id=user_id)
+#                 ]
+#
+#         ids = [image.id for image in images]
+#         urls = [image.url for image in images]
+#
+#         if len(images) != 0:
+#             return JsonResponse(
+#                 {
+#                     "state": "success",
+#                     "ids": ids,
+#                     "urls": urls,
+#                 }
+#             )
+#         else:
+#             return JsonResponse(
+#                 {
+#                     "state": "failed",
+#                     "message": "未找到相关图片",
+#                 }
+#             )
 
 
 class GetTags(APIView):
