@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-    
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -103,7 +103,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "piccloud",  # 这里是你创建的数据库名
         "USER": "root",  # 这里是你创建的数据库用户名
-        "PASSWORD": "1234",  # 这里是你设置的密码，windows上必须4位，呜呜呜
+        "PASSWORD": "123",  # 这里是你设置的密码，windows上必须4位，呜呜呜
         "HOST": "localhost",
         "PORT": "3306",  # 默认端口
     }
@@ -135,11 +135,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "zh-Hans"
 
-TIME_ZONE = "Asia/Shanghai" # 设为你所在的时区
+TIME_ZONE = "Asia/Shanghai"  # 设为你所在的时区
 
 USE_I18N = False
 
-USE_TZ = True # 开启时区支持
+USE_TZ = True  # 开启时区支持
 
 
 # Static files (CSS, JavaScript, Images)

@@ -114,43 +114,35 @@ class AlipayView(APIView):
     # 支付宝返回函数
     def get(self, request, *args, **kwargs):
         # 向数据库中保存相关数据
-        trade_no1 = request.data.get("out_trade_no")
         trade_on = request.GET.get("out_trade_no")
-        print(trade_no1)
-        print(trade_on)
-        if len(ConsumptionHistory.objects.filter(trade_no=trade_on)) == 0:
-            history = ConsumptionHistory.objects.filter(trade_no=trade_no1).first()
-        else:
-            history = ConsumptionHistory.objects.filter(trade_no=trade_on).first()
-        print(history)
+        # print(trade_on)
+
+        history = ConsumptionHistory.objects.filter(trade_no=trade_on).first()
+        history.is_success = True
         history.save()
         user_id = history.user_id_id
-        pattern = history.trade_description
-        deadline = history.trade_time + timedelta(days=30)
+        items = ContinueTime.objects.filter(user_id=user_id)
+        if len(items) != 0:
+            item = items.first()
+            deadline = items.first().deadline + timedelta(days=30)
+            item.deadline = deadline
+            item.save()
+        else:
+            pattern = history.trade_description
+            deadline = history.trade_time + timedelta(days=30)
 
-        ContinueTime.objects.create(
-            user_id=user_id,
-            type=pattern,
-            deadline=deadline,
-        )
+            ContinueTime.objects.create(
+                user_id=user_id,
+                type=pattern,
+                deadline=deadline,
+            )
 
-        user = User.objects.filter(id=user_id).first()
-        if pattern == "银牌会员":
-            user.membership = "silver"
-        elif pattern == "金牌会员":
-            user.membership = "gold"
-        user.save()
-
-        # url = "http:localhost:8000"
-        # data = {
-        #     "message": "支付成功",
-        # }
-        #
-        # requests.post(
-        #     url,
-        #     json=data,
-        #     headers={"Content-Type": "application/json"},
-        # )
+            user = User.objects.filter(id=user_id).first()
+            if pattern == "银牌会员":
+                user.membership = "silver"
+            elif pattern == "金牌会员":
+                user.membership = "gold"
+            user.save()
 
         method = request.method
         return HttpResponse(method + "支付成功")
