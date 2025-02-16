@@ -6,7 +6,7 @@
 
 - 蔡明辰：images、ai
 - 张行：pay、search
-- 李灿：accounts、admin
+- 李灿：accounts、部分utils
 
 > 注意utils文件夹为公共组件，不属于任何一个应用。
 
