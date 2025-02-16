@@ -39,8 +39,23 @@ class QRcodeStateView(APIView):
     def post(self, request, *args, **kwargs):
         qrcode_id = request.data.get("qrcode_id")
         item = QRcodeId.objects.filter(qrcode_id=qrcode_id).first()
-        return JsonResponse({"state": str(item.state)})
-        pass
+        if item.state != "used":
+            return JsonResponse({"state": str(item.state)})
+        else:
+            item.state = "stop"
+            item.save()
+            item2 = TemporaryToken.objects.filter(qrcode_id=qrcode_id).first()
+            user_id = item2.user
+            user = User.objects.filter(id=user_id).first()
+            email = user.email
+            password = user.password
+            return JsonResponse(
+                {
+                    "state": "used",
+                    "email": email,
+                    "password": password,
+                }
+            )
 
 
 class PhoneScanned(APIView):
@@ -75,14 +90,4 @@ class QRcodeLoginView(APIView):
         item2.state = "used"
         item2.save()
 
-        user = User.objects.filter(id=int(user_id)).first()
-        # print( "11111111111111111111111111111111111111111111111")
-        email = user.email
-        password = user.password
-
-        return JsonResponse(
-            {
-                "email": email,
-                "password": password,
-            }
-        )
+        return JsonResponse({"state": "success"})
