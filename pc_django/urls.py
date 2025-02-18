@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from apps.accounts.admin import custom_admin_site
 
 # 导入自定义的视图函数
 from apps.accounts.views import (
@@ -62,7 +63,8 @@ from apps.qr_code.views import (
 
 
 urlpatterns = [
-    path("admin/", admin.site.urls),  # Django 自带的后台管理系统
+    #path("admin/", admin.site.urls),  # Django 自带的后台管理系统
+    path("admin/", custom_admin_site.urls),  # Django 自带的后台管理系统
     # ------------------------------ accounts ------------------------------
     # 登录页面
     path("api/login", LoginView.as_view(), name="login"),
