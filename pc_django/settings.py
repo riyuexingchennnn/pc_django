@@ -31,7 +31,7 @@ ALLOWED_HOSTS = [
     "https://rcsvnfd47bsc.ngrok.xiaomiqiu123.top",
     "localhost",  # 本地地址
     "127.0.0.1",  # 本地地址
-    "192.168.134.35",  # 局域网地址
+    "192.168.43.40",  # 局域网地址
 ]
 
 

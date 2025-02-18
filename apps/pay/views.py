@@ -47,11 +47,11 @@ class AlipayView(APIView):
             if pattern == "1":
                 # 获取订单信息
                 subject = "银牌会员"
-                total_amount = "10.00"
+                total_amount = "18.00"
             else:
                 # 获取订单信息
                 subject = "金牌会员"
-                total_amount = "20.00"
+                total_amount = "38.00"
 
             item = ContinueTime.objects.filter(user_id=user_id).first()
 
@@ -84,7 +84,7 @@ class AlipayView(APIView):
             else:
                 request_data = AlipayTradePagePayRequest(biz_model=model)
             request_data.return_url = (
-                "http://localhost:8000/pay/alipay"  # 支付完成后的跳转页面
+                "http://localhost:8080/#/pages/vip/vip"  # 支付完成后的跳转页面
             )
             request_data.notify_url = (
                 "http://localhost:8000/pay/alipay/notify"  # 异步通知地址

@@ -103,9 +103,9 @@ def select_by_position(image_list, position):
 
     print(response.json())
 
-    if response.status_code == 200:
+    if response.status_code == 200 and response.json()["status"] == "1":
         json = response.json()
-        print(json["geocodes"][0]["level"])
+        # print(json["geocodes"][0]["level"])
         if json["geocodes"][0]["level"] == "省":
             province = json["geocodes"][0]["province"]
             for image in image_list:
