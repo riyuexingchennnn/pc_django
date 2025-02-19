@@ -17,8 +17,8 @@ class Image(models.Model):
     user_id = models.CharField(max_length=255)  # 上传用户ID
     image_size = models.FloatField(blank=True, null=True)  # 图片大小，单位为MB
 
-    def __str__(self):
-        return self.id  # 返回图片名称作为对象的字符串表示
+    # def __str__(self):
+    #     return self.id  # 返回图片名称作为对象的字符串表示
 
     class Meta:
         db_table = "image"  # 自定义表名
