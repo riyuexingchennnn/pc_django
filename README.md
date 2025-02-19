@@ -298,7 +298,27 @@ sudo lsof -i :8000
 rcsvnfd47bsc.ngrok.xiaomiqiu123.top/user/login  # 小米球外网地址
 ```
 
-## 四、项目接口测试
+## 四、管理员终端
+
+1. 创建超级管理员账号
+
+    ```
+    python3 manage.py createsuperuser
+    ```
+
+2. 登录管理员终端界面
+
+    访问后端管理页面：http://localhost:8000/admin/ 在此界面可以方遍管理员直接管理数据库。
+
+    ![](./docs/admin.png)
+
+3. 查看系统占用
+
+    点击右上角的`系统当前性能`。出现当前后端系统 的CPU和内存可视化占用情况。
+
+    ![](./docs/system-monitor.png)
+    
+## 五、项目接口测试
 
 ### 1. Django REST framework
 
@@ -320,7 +340,7 @@ Django的REST framework提供了一系列的工具，可以方便的直接的输
 
     ![](./docs/apifox_2.png)
 
-## 五、OSS对象存储
+## 六、OSS对象存储
 
 ### 1. 方法一：本地OSS存储（不推荐）
 

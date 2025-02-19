@@ -180,6 +180,8 @@ class SelectImagesByDescription(APIView):
         # user_id = request.data.get("user_id")
         description = request.data.get("description")
 
+        # print(description)
+        
         idList, urlList, images = select_by_description(
             select_by_userid(user_id=user_id), description=description
         )
