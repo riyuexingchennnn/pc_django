@@ -1,7 +1,7 @@
 from django.contrib import admin
 from openai.types.beta.threads import ImageFile
 
-from .models import User
+
 from django.urls import path
 from django.shortcuts import render
 import psutil
@@ -87,9 +87,12 @@ class SystemMonitorAdmin(admin.AdminSite):
 # 注册自定义 AdminSite
 custom_admin_site = SystemMonitorAdmin(name="customadmin")
 
-from apps.images.models import Image
-
+from apps.images.models import Image, ImageTag
+from .models import User, VerificationCode
+from apps.qr_code.models import QRcodeId, TemporaryToken
+custom_admin_site.register(VerificationCode)
 custom_admin_site.register(Image)
+custom_admin_site.register(ImageTag)
+custom_admin_site.register(QRcodeId)
 custom_admin_site.register(User)
-admin.site.register(Image)
-admin.site.register(User)
+custom_admin_site.register(TemporaryToken)
