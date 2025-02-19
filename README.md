@@ -257,7 +257,7 @@ python3 manage.py migrate
 
 如果出现了，数据库中某个表找不到，字段找不到等问题，可以删除有问题的migrations文件夹，然后重新运行上面的命令。
 
-如果发现没有产生migrations文夹，可以单个为某个Django应用创建migrations：
+如果发现没有产生migrations文件夹，可以单个为某个Django应用创建migrations：
 
 ```
 python3 manage.py makemigrations

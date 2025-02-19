@@ -35,6 +35,7 @@ class AlipayView(APIView):
         token = request.META.get("HTTP_AUTHORIZATION")
         payload = parse_token(token)
         user_id = payload.get("user_id")
+        # print(user_id)
         # user_id = request.data.get("user_id")
         pattern = request.data.get("pattern")
 
@@ -43,7 +44,7 @@ class AlipayView(APIView):
                 {"state": "Failed", "message": "未找到该用户"},
                 status=400,
             )
-
+        print("*********************************")
         uuid1 = uuid.uuid1()
         out_trade_no = str(uuid1).replace("-", "")
 
@@ -58,7 +59,7 @@ class AlipayView(APIView):
                 total_amount = "38.00"
 
             item = ContinueTime.objects.filter(user_id=user_id).first()
-
+            print(item)
             if item is not None and item.type != subject:
 
                 return JsonResponse(
