@@ -35,7 +35,6 @@ class AlipayView(APIView):
         token = request.META.get("HTTP_AUTHORIZATION")
         payload = parse_token(token)
         user_id = payload.get("user_id")
-        # print(user_id)
         # user_id = request.data.get("user_id")
         pattern = request.data.get("pattern")
 
@@ -44,7 +43,7 @@ class AlipayView(APIView):
                 {"state": "Failed", "message": "未找到该用户"},
                 status=400,
             )
-        print("*********************************")
+
         uuid1 = uuid.uuid1()
         out_trade_no = str(uuid1).replace("-", "")
 
@@ -59,7 +58,7 @@ class AlipayView(APIView):
                 total_amount = "38.00"
 
             item = ContinueTime.objects.filter(user_id=user_id).first()
-            print(item)
+
             if item is not None and item.type != subject:
 
                 return JsonResponse(
@@ -78,7 +77,7 @@ class AlipayView(APIView):
 
             # 获取设备
             device = request.data.get("device")
-
+            print(device)
             if device == "phone":
                 model.product_code = "QUICK_WAP_WAY"
             else:
@@ -89,7 +88,7 @@ class AlipayView(APIView):
             else:
                 request_data = AlipayTradePagePayRequest(biz_model=model)
             request_data.return_url = (
-                "http://localhost:8080/#/pages/vip/vip"  # 支付完成后的跳转页面
+                "http://192.168.84.164:8000/pay/alipay"  # 支付完成后的跳转页面
             )
             request_data.notify_url = (
                 "http://localhost:8000/pay/alipay/notify"  # 异步通知地址
@@ -120,7 +119,7 @@ class AlipayView(APIView):
     def get(self, request, *args, **kwargs):
         # 向数据库中保存相关数据
         trade_on = request.GET.get("out_trade_no")
-        # print(trade_on)
+        print("trade_on" , trade_on)
 
         history = ConsumptionHistory.objects.filter(trade_no=trade_on).first()
         history.is_success = True
@@ -143,12 +142,14 @@ class AlipayView(APIView):
             )
 
             user = User.objects.filter(id=user_id).first()
+            
             if pattern == "银牌会员":
                 user.membership = "silver"
             elif pattern == "金牌会员":
                 user.membership = "gold"
             user.save()
-
+            print(user.membership)
+            
         method = request.method
         return HttpResponse(method + "支付成功")
 

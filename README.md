@@ -259,9 +259,18 @@ python3 manage.py migrate
 
 如果发现没有产生migrations文件夹，可以单个为某个Django应用创建migrations：
 
+> 如果还是没有数据库表，可以采用极端方法，直接删除整个数据库，然后重新迁移。
+
 ```
 python3 manage.py makemigrations
 python3 manage.py migrate
+```
+
+或
+
+```
+python manage.py makemigrations
+python manage.py migrate
 ```
 
 ### 3. 项目整体运行

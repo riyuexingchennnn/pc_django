@@ -207,7 +207,9 @@ class SelectImagesByTPT(APIView):
         end_time = request.data.get("endtime")
         position = request.data.get("position")
         tags_list = request.data.get("tags")
-
+        
+        print(tags_list)
+        
         # 获取用户全部照片
         images = select_by_userid(user_id=user_id)
 
@@ -224,7 +226,7 @@ class SelectImagesByTPT(APIView):
         url1 = set(image.url for image in images)
         id1 = set(image.id for image in images)
 
-        if len(tags_list) != 0:
+        if tags_list and len(tags_list) != 0:
             # 将结果转换为列表
             urls, ids, _ = select_by_tags(
                 select_by_userid(user_id=user_id), tags_list=tags_list
@@ -267,7 +269,7 @@ class GetTags(APIView):
 
         # 将集合转换回列表
         tagList = list(tagList)
-
+        # print(tagList)
         return JsonResponse({"tags": tagList})
 
 
