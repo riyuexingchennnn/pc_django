@@ -13,6 +13,7 @@ import logging
 from apps.pay.models import ConsumptionHistory, ContinueTime
 from apps.pay.utils.User_exist import user_is_exist
 from apps.accounts.models import User
+from apps.utils.token_util import parse_token
 
 logger = logging.getLogger("django")
 
@@ -31,7 +32,10 @@ class AlipayView(APIView):
 
         client = DefaultAlipayClient(alipay_client_config)
 
-        user_id = request.data.get("user_id")
+        token = request.META.get("HTTP_AUTHORIZATION")
+        payload = parse_token(token)
+        user_id = payload.get("user_id")
+        # user_id = request.data.get("user_id")
         pattern = request.data.get("pattern")
 
         if not user_is_exist(user_id):

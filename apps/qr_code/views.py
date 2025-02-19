@@ -6,6 +6,8 @@ import qrcode
 import io
 from apps.qr_code.models import QRcodeId, TemporaryToken
 from apps.accounts.models import User
+from apps.utils.token_util import parse_token
+
 
 # Create your views here.
 
@@ -60,7 +62,10 @@ class QRcodeStateView(APIView):
 
 class PhoneScanned(APIView):
     def post(self, request, *args, **kwargs):
-        user_id = request.data.get("user_id")
+        token = request.META.get("HTTP_AUTHORIZATION")
+        payload = parse_token(token)
+        user_id = payload.get("user_id")
+        # user_id = request.data.get("user_id")
         qrcode_id = request.data.get("qrcode_id")
 
         # 修改二维码状态
