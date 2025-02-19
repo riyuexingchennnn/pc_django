@@ -165,6 +165,7 @@ class GetUserMembership(APIView):
         if deadline > current_time:
             return JsonResponse({"membership": membership})
         else:
+            item.delete()
             user.membership = "free"
             user.save()
             return JsonResponse({"membership": "free"})
