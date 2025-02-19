@@ -55,7 +55,7 @@ class SystemMonitorAdmin(admin.AdminSite):
         buf = io.BytesIO()
         plt.savefig(buf, format='png')
         buf.seek(0)
-        image_base64 = base64.b64encode(buf.read()).decode('utf - 8')
+        image_base64 = base64.b64encode(buf.read()).decode('utf-8')
         buf.close()
 
         # 渲染模板
@@ -66,6 +66,6 @@ class SystemMonitorAdmin(admin.AdminSite):
 custom_admin_site = SystemMonitorAdmin(name='customadmin')
 
 
-admin.site = custom_admin_site
+custom_admin_site.register(User)
 
 admin.site.register(User)

@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+
+{% block extrahead %}
+<style>
+  #system-monitor-link {
+    margin-left: 20px;
+  }
+</style>
+{% endblock %}
+
+{% block userlinks %}
+  <a href="{% url 'admin:index' %}">Home</a>
+  / <a href="{% url 'admin:logout' %}">Log out</a>
+  {% if has_permission %}
+    <div id="system-monitor-link">
+      <a href="http://127.0.0.1:8000/admin/system-monitor/">系统当前性能</a>
+    </div>
+  {% endif %}
+{% endblock %}
