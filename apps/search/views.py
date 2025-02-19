@@ -1,5 +1,7 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
+from apps.utils.token_util import parse_token
+from apps.images.models import Image, ImageTag
 from apps.search.utils.Select_methods import (
     select_by_userid,
     select_by_time,
@@ -11,8 +13,9 @@ from apps.search.utils.Select_methods import (
 from apps.images.models import ImageTag
 from .utils.citydata import data_
 
-# Create your views here.
-
+# lc
+# 使用组合索引+覆盖索引优化查询过程
+# 优化过程与范围时间搜索相同
 
 class SelectImagesByTime(APIView):
     # 按时间搜索,格式：2025-08-20
@@ -40,6 +43,26 @@ class SelectImagesByTime(APIView):
                     "message": "未找到这个时间的图片",
                 }
             )
+# lc
+# 优化过程：去除重复遍历，使用组合索引+覆盖索引优化查询过程
+# SQL：CREATE INDEX combined_index ON Image (user_id, time)
+# SQL：select id, url from images where user_id = 'user_id' and time >= 'start_time' and time <= 'end_time'
+# class SelectImagesByTimeZone(APIView):
+#     def post(self, request, *args, **kwargs):
+#         token = request.META.get("HTTP_AUTHORIZATION")
+#         payload = parse_token(token)
+#         user_id = payload.get("user_id")
+#         start_time = request.data.get("starttime")
+#         end_time = request.data.get("endtime")
+        
+#         queryset = Image.objects.filter(
+#             user_id = user_id,
+#             time__gte = start_time,
+#             time__lte = end_time
+#         ).only('id', 'url')
+#         # 将QuerySet转换为包含id和url的字典列表
+#         result = list(queryset.values('id', 'url'))
+#         return result
 
 
 class SelectImagesByTimeZone(APIView):
@@ -67,6 +90,11 @@ class SelectImagesByTimeZone(APIView):
                     "message": "未找到这个时间段的图片",
                 }
             )
+# lc
+# 由于左模糊搜索无法使用索引，除了要全表扫描，并且要挨个进行字符串匹配
+# 所以阿里巴巴java开发手册中是禁用左模糊搜索的
+# 除此之外，将国家省份市区存储在一个字段中是违反数据库第一范式的
+
 
 
 class SelectImagesByPosition(APIView):
@@ -95,7 +123,13 @@ class SelectImagesByPosition(APIView):
                 }
             )
 
-
+# lc
+# 使用子查询与分组查询优化多次筛选过程
+# SQL:select image_id,image_url where image_id in (select image_id from tag where tag_name in (tag_list) group by image_id having count(tag_name) = len(tags_list))
+#def get_images(tag_list):
+#    subquery = Tag.objects.filter(tag_name__in=tag_list).values('image_id').annotate(tag_count=models.Count('tag_name')).filter(tag_count=len(tag_list)).values('image_id')
+#    images = Image.objects.filter(image_id__in=subquery).only('image_id', 'image_url')
+#    return list(images.values('image_id', 'image_url'))
 class SelectImagesByTags(APIView):
     # 按照标签搜索图片
     def post(self, request, *args, **kwargs):
