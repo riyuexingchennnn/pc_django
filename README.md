@@ -388,5 +388,11 @@ pip install -U cos-python-sdk-v5
 
 公网IP：113.45.3.117
 
+ssh后台运行指令
+
+```
+nohup python3 manage.py runserver 0.0.0.0:8000 &
+```
+
 - 优点：带宽大，有2MB/s。部署好后不用管他。
 - 缺点：可能要花钱。
