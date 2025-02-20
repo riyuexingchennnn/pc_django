@@ -107,7 +107,7 @@ class LoginView(APIView):
         if User.objects.filter(email=email).exists():
             user = User.objects.get(email=email)
         if user is None:
-            return Response({"status": "error", "message": "用户不存在"}, status=status.HTTP_401_NOT_FOUND)
+            return Response({"status": "error", "message": "用户不存在"}, status=status.HTTP_400_BAD_REQUEST)
         if user.check_password(password):
             # access_token生成
             expiration_time = timezone.now() + timezone.timedelta(minutes=15)
