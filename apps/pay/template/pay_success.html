@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付成功</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 128, 0, 0.1);
+            position: relative;
+            z-index: 1;
+            max-width: 90%;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #22c55e;
+            margin: 0 auto 1.5rem;
+            position: relative;
+            animation: scaleUp 0.4s ease-out;
+        }
+
+        .checkmark::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 30px;
+            height: 50px;
+            border: solid white;
+            border-width: 0 4px 4px 0;
+            transform: translate(-50%, -60%) rotate(45deg);
+            animation: drawCheck 0.6s ease-out;
+        }
+
+        h1 {
+            color: #22c55e;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .background {
+            position: absolute;
+            width: 200vw;
+            height: 200vh;
+            background: linear-gradient(45deg, rgba(34, 197, 94, 0.05) 0%, rgba(34, 197, 94, 0.02) 100%);
+            animation: gradientMove 20s linear infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scaleUp {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        @keyframes drawCheck {
+            0% { stroke-dasharray: 50; stroke-dashoffset: 50; }
+            100% { stroke-dasharray: 50; stroke-dashoffset: 0; }
+        }
+
+        @keyframes gradientMove {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div class="container">
+        <div class="checkmark"></div>
+        <h1>支付成功！</h1>
+        <p>感谢您的支付，请关闭当前页面返回应用程序继续使用</p>
+    </div>
+</body>
+</html>

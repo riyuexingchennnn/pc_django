@@ -78,7 +78,7 @@ ROOT_URLCONF = "pc_django.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [BASE_DIR / "templates", BASE_DIR / "apps/pay/template"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

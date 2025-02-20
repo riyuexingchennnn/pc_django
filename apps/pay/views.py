@@ -1,4 +1,6 @@
 from datetime import timedelta, datetime
+
+from django.shortcuts import render
 from rest_framework.views import APIView
 from alipay.aop.api.AlipayClientConfig import AlipayClientConfig
 from alipay.aop.api.DefaultAlipayClient import DefaultAlipayClient
@@ -32,10 +34,10 @@ class AlipayView(APIView):
 
         client = DefaultAlipayClient(alipay_client_config)
 
-        token = request.META.get("HTTP_AUTHORIZATION")
-        payload = parse_token(token)
-        user_id = payload.get("user_id")
-        # user_id = request.data.get("user_id")
+        # token = request.META.get("HTTP_AUTHORIZATION")
+        # payload = parse_token(token)
+        # user_id = payload.get("user_id")
+        user_id = request.data.get("user_id")
         pattern = request.data.get("pattern")
 
         if not user_is_exist(user_id):
@@ -151,7 +153,8 @@ class AlipayView(APIView):
             print(user.membership)
             
         method = request.method
-        return HttpResponse(method + "支付成功")
+        return render(request, 'pay_success.html')
+        # return HttpResponse('./template/pay_success.html')
 
 
 class GetUserMembership(APIView):

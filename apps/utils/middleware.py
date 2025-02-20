@@ -23,6 +23,7 @@ class LoginInterceptorMiddleware:
             "/api/register",
             "/api/forgot_password",
             "/api/change_password",
+            "/pay/alipay",
             "/qrcode",
             "/qrcode",
             "/qrcode/get",
