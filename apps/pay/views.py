@@ -50,7 +50,10 @@ class AlipayView(APIView):
         out_trade_no = str(uuid1).replace("-", "")
 
         try:
-            if pattern == "1":
+            subject = ""
+            total_amount = ""
+            
+            if pattern == 1:
                 # 获取订单信息
                 subject = "银牌会员"
                 total_amount = "18.00"
@@ -79,7 +82,7 @@ class AlipayView(APIView):
 
             # 获取设备
             device = request.data.get("device")
-            print(device)
+            
             if device == "phone":
                 model.product_code = "QUICK_WAP_WAY"
             else:
@@ -90,12 +93,14 @@ class AlipayView(APIView):
             else:
                 request_data = AlipayTradePagePayRequest(biz_model=model)
             request_data.return_url = (
-                "http://rcsvnfd47bsc.ngrok.xiaomiqiu123.top/pay/alipay"  # 支付完成后的跳转页面
+                "https://rcsvnfd47bsc.ngrok.xiaomiqiu123.top/pay/alipay"  # 支付完成后的跳转页面
             )
             request_data.notify_url = (
-                "http://rcsvnfd47bsc.ngrok.xiaomiqiu123.top/alipay/notify"  # 异步通知地址
+                "https://rcsvnfd47bsc.ngrok.xiaomiqiu123.top/alipay/notify"  # 异步通知地址
             )
-
+            
+            # print(subject)
+            
             ConsumptionHistory.objects.create(
                 trade_no=out_trade_no,
                 user_id_id=int(user_id),

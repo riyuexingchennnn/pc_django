@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-t2b+ayog=i2hk)&9*c@ey=$=r5fzn_4dh$7#l%97x@+q-o-ae_
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "*",
+    "113.45.3.117", # 华为云公网IP
     "rcsvnfd47bsc.ngrok.xiaomiqiu123.top",  # 你的外部域名
     "http://rcsvnfd47bsc.ngrok.xiaomiqiu123.top",  # 如果是 HTTP 协议也需要添加
     "https://rcsvnfd47bsc.ngrok.xiaomiqiu123.top",
@@ -34,6 +34,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",  # 本地地址
     "192.168.43.40",  # 局域网地址
     "192.168.84.164",
+    "192.168.1.233",
     "192.168.1.106",  # 我寝室的路由器局域网
 ]
 
