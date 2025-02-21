@@ -96,7 +96,7 @@ def select_by_timezone(images, start_time, end_time):
 def select_by_position(image_list, position):
     images = []
     # 你的高德地图API Key
-    API_KEY = "***REMOVED***"
+    API_KEY = "4a85d027214c8fdbf9003564a0cc7da4"
     url = f"https://restapi.amap.com/v3/geocode/geo?key={API_KEY}&address={position}"
 
     response = requests.get(url)

@@ -2,7 +2,7 @@ import json
 
 import requests
 
-API_KEY = "***REMOVED***"
+API_KEY = "4a85d027214c8fdbf9003564a0cc7da4"
 position = "中国"
 url = f"https://restapi.amap.com/v3/config/district?key={API_KEY}&keywords=中国&subdistrict=3&extensions=base"
 

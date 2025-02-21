@@ -6,7 +6,7 @@ from qcloud_cos.cos_exception import CosClientError, CosServiceError
 secret_id = ""
 secret_key = ""
 region = "ap-guangzhou"  # 你COS桶所在的区域（例如：'ap-guangzhou'）
-bucket_name = "***REMOVED***"  # 替换成你的COS存储桶名称
+bucket_name = "piccloud-1319019531"  # 替换成你的COS存储桶名称
 
 # 初始化CosConfig和CosS3Client
 config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key)
