@@ -11,3 +11,6 @@ venv/
 media/avatar/*
 # 但不忽略 default.png
 !media/avatar/default.png
+
+bfg-1.14.0.jar
+sensitive.txt

@@ -3,8 +3,8 @@ from qcloud_cos import CosS3Client
 from qcloud_cos.cos_exception import CosClientError, CosServiceError
 
 # 腾讯云 COS 相关配置
-secret_id = "***REMOVED***"
-secret_key = "***REMOVED***"
+secret_id = ""
+secret_key = ""
 region = "ap-guangzhou"  # 你COS桶所在的区域（例如：'ap-guangzhou'）
 bucket_name = "***REMOVED***"  # 替换成你的COS存储桶名称
 
