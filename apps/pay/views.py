@@ -93,10 +93,10 @@ class AlipayView(APIView):
             else:
                 request_data = AlipayTradePagePayRequest(biz_model=model)
             request_data.return_url = (
-                "https://rcsvnfd47bsc.ngrok.xiaomiqiu123.top/pay/alipay"  # 支付完成后的跳转页面
+                "http://113.45.3.117:8000/pay/alipay"  # 支付完成后的跳转页面
             )
             request_data.notify_url = (
-                "https://rcsvnfd47bsc.ngrok.xiaomiqiu123.top/alipay/notify"  # 异步通知地址
+                "http://113.45.3.117:8000//alipay/notify"  # 异步通知地址
             )
             
             # print(subject)

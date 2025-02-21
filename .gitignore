@@ -3,6 +3,8 @@ log/
 .idea/
 .vscode/
 
+nohup.out
+
 venv/
 
 # 忽略 media/avatar 目录下的所有文件
