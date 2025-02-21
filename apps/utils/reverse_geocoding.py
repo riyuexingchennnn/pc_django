@@ -7,7 +7,7 @@ def reverse_geocoding(longitude, latitude):
         longitude：精度  例：116.481488
         latitude：纬度   例：39.990464
     """
-    API_KEY = "***REMOVED***"
+    API_KEY = ""
     url = f"https://restapi.amap.com/v3/geocode/regeo?key={API_KEY}&location={longitude},{latitude}&poitype=&radius=0&extensions=base&roadlevel=1"
 
     response = requests.get(url)

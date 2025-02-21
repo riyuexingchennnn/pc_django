@@ -14,3 +14,5 @@ media/avatar/*
 
 bfg-1.14.0.jar
 sensitive.txt
+
+.git.bfg-report/

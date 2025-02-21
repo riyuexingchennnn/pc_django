@@ -3,11 +3,11 @@ import urllib
 import requests
 
 # ---------------------- 以下为API常量 --------------------------
-OPENAI_API_KEY = "***REMOVED***"
+OPENAI_API_KEY = ""
 OPENAI_BASE_URL = "https://api.chatanywhere.tech"
 
-BAIDU_API_KEY = "***REMOVED***"
-BAIDU_SECRET_KEY = "***REMOVED***"
+BAIDU_API_KEY = ""
+BAIDU_SECRET_KEY = ""
 
 
 # ---------------------- 以下为辅助函数 --------------------------
